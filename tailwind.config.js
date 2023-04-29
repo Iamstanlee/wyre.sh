@@ -16,7 +16,7 @@ module.exports = {
       colors: {
         transparent: 'transparent',
         black: '#1D1C1F',
-        primary: '#7cae75',
+        primary: '#3371ff',
         'primary-text': '#525154',
         'primary-light': 'rgb(243, 255, 242)',
 
@@ -37,7 +37,7 @@ module.exports = {
         'border-color': '#dadada',
         'border-danger': '#FDA29B',
         modal: '#0009',
-        'text-blue':'blue'
+        'text-blue': 'blue'
       }
     }
   },

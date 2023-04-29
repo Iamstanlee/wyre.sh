@@ -14,7 +14,7 @@ export default function SignIn() {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((event, _) => {
       const authEvents = ['SIGNED_IN', 'MFA_CHALLENGE_VERIFIED'];
-      if (authEvents.includes(event)) replace(RouteKey.dashboard)
+      if (authEvents.includes(event)) replace(RouteKey.dashboard);
     });
     return () => {
       subscription.unsubscribe();
@@ -22,8 +22,8 @@ export default function SignIn() {
   }, []);
 
   return (
-    <div className='flex justify-center height-screen-helper'>
-      <div className='flex flex-col justify-between max-w-lg p-3 m-auto w-80'>
+    <div className="flex justify-center height-screen-helper">
+      <div className="flex flex-col justify-between max-w-lg p-3 m-auto w-80">
         <Auth
           supabaseClient={supabase}
           providers={[]}
@@ -33,8 +33,8 @@ export default function SignIn() {
             variables: {
               default: {
                 colors: {
-                  brand: '#7cae75',
-                  brandAccent: '#7cae75'
+                  brand: '#3371ff',
+                  brandAccent: '#3371ff'
                 },
                 fonts: {}
               }
