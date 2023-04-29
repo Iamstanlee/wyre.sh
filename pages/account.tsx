@@ -3,7 +3,7 @@ import withLoading from '@/utils/with-loading';
 import UserAccount from '@/components/UserAccount';
 import Layout from '@/components/Layout';
 
-function AccountComponent() {
+function AccountPage() {
   return (
     <Layout>
       <UserAccount />
@@ -11,4 +11,4 @@ function AccountComponent() {
   );
 }
 
-export default withLoading(AccountComponent);
+export default withLoading(AccountPage);

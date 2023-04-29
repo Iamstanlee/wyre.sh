@@ -5,15 +5,15 @@ import Layout from '@/components/Layout';
 import { useUser } from '@/utils/use-user';
 import Link from 'next/link';
 
-function DashboardComponent() {
+function DashboardPage() {
   return (
     <Layout>
       <h2 className="text-sm sm:text-base text-black font-normal block lg:hidden mb-2">
         {today()}
       </h2>
-      <div>dashboard</div>
+      <p className='text-black'>dashboard</p>
     </Layout>
   );
 }
 
-export default withLoading(DashboardComponent);
+export default withLoading(DashboardPage);

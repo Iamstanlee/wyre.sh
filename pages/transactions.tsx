@@ -11,7 +11,7 @@ function DashboardComponent() {
       <h2 className="text-sm sm:text-base text-black font-normal block lg:hidden mb-2">
         {today()}
       </h2>
-      <div>transactions</div>
+      <p className="text-black">transactions</p>
     </Layout>
   );
 }

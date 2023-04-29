@@ -16,6 +16,7 @@ interface Props {
   placeholder: InputHTMLAttributes<HTMLInputElement>['placeholder'];
   errors?: string;
   optional: boolean;
+  disabled?: boolean;
 }
 const Input = (props: Props) => {
   const { className, title, errors, optional, ...rest } = props;

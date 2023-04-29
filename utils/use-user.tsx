@@ -7,7 +7,7 @@ import { useRouter } from 'next/router';
 type UserContextType = {
   user: User | null;
   payment: User['payment'] | null;
-  isLoading: boolean
+  isLoading: boolean;
 };
 
 export const UserContext = createContext<UserContextType | undefined>(
@@ -41,18 +41,20 @@ export default function UserContextProvider(props: Props) {
       .match({ id: supabaseUser?.id })
       .single();
     if (error) {
-      gotoSignin();
+      gotoSetup();
     } else {
       const userData = data as User;
       setUser(userData);
-      if (userData) {
+      if (userData.first_name === null || userData.last_name === null) {
+        gotoSetup();
+      } else {
         setIsloading(false);
       }
     }
   };
 
-  const gotoSignin = () => {
-    replace(RouteKey.signin).then(() => setIsloading(false));
+  const gotoSetup = () => {
+    replace(RouteKey.setup).then(() => setIsloading(false));
   };
 
   const value = {

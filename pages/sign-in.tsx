@@ -14,7 +14,8 @@ export default function SignIn() {
       data: { subscription }
     } = supabase.auth.onAuthStateChange((event, _) => {
       const authEvents = ['SIGNED_IN', 'MFA_CHALLENGE_VERIFIED'];
-      if (authEvents.includes(event)) replace(RouteKey.dashboard);
+      if (authEvents.includes(event))
+        replace(RouteKey.dashboard).then(() => reload());
     });
     return () => {
       subscription.unsubscribe();
