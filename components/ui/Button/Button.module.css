@@ -1,0 +1,32 @@
+.root {
+  @apply bg-primary text-white cursor-pointer inline-flex px-10 rounded-sm leading-6  transition ease-in-out duration-150 shadow-sm font-semibold text-center justify-center uppercase py-4 border border-transparent items-center rounded;
+}
+
+.root:hover {
+  @apply opacity-50;
+}
+
+.root:focus {
+  @apply outline-none ring-2 ring-primary ring-opacity-50;
+}
+
+.root[data-active] {
+  @apply bg-white;
+}
+
+.loading {
+  @apply bg-primary text-white cursor-not-allowed;
+}
+
+.slim {
+  @apply py-2 transform-none normal-case;
+}
+
+.disabled,
+.disabled:hover {
+  @apply text-primary-text  border-border-color bg-white cursor-not-allowed;
+  filter: grayscale(1);
+  -webkit-transform: translateZ(0);
+  -webkit-perspective: 1000;
+  -webkit-backface-visibility: hidden;
+}

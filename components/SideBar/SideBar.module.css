@@ -1,0 +1,10 @@
+.active, .a:hover{
+       /* background: #7cae7536; */
+       background: #7cae751f;
+       border-radius: 8px;
+}
+
+.a {
+       padding: 8px;
+    transition: 200ms ease-in-out;
+}
