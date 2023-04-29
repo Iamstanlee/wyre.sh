@@ -40,11 +40,11 @@ export default function Scaffold({ children, meta: pageMeta }: Props) {
         <meta name="twitter:description" content={meta.description} />
         <meta name="twitter:image" content={meta.card_image} />
       </Head>
-      <Script
+      {/* <Script
         async
         src="https://analytics.umami.is/script.js"
         data-website-id="1283c323-0f6c-4169-9dc3-2d8c082712ac"
-      ></Script>
+      ></Script> */}
       {/* <Script
         data-domain="app.muqee.ai"
         src="https://plausible.io/js/script.js"
