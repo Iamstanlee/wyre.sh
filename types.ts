@@ -5,8 +5,7 @@ export interface PageMetadata {
 }
 
 export interface User {
-  id: string /* primary key */
-  ;
+  id: string /* primary key */;
 
   email_address: string;
   first_name: string;
@@ -17,8 +16,7 @@ export interface User {
 }
 
 export interface Business {
-  id: string /* primary key */
-  ;
+  id: string /* primary key */;
   user_id: string;
   name: string;
   description: string;
@@ -39,8 +37,7 @@ export interface Payment {
 }
 
 export interface AIGeneratedContent {
-  id: string /* primary key */
-  ;
+  id: string /* primary key */;
   business_id: string;
   formatted_date: string;
   content: string[];
@@ -61,8 +58,6 @@ export interface Subscription {
   created_at: string;
   updated_at: string;
 }
-
-
 
 export interface SubscriptionMetadata {
   store_id: number;
@@ -104,4 +99,14 @@ export interface Toast {
   message: string;
   variant?: 'success' | 'info' | 'warning' | 'danger';
   show?: boolean;
+}
+
+export interface SummaryCard {
+  name: string;
+  amount: string;
+}
+
+export interface CreatePaymentModal {
+  open: boolean;
+  handleCloseCreatePaymentModal: () => void;
 }

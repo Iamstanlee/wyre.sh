@@ -1,0 +1,11 @@
+.close {
+  @apply bg-transparent text-black p-4 cursor-pointer shadow-sm border border-transparent shadow-none;
+}
+
+.close:hover {
+  @apply outline-none;
+}
+
+.close:focus {
+  @apply outline-none;
+}

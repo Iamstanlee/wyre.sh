@@ -1,0 +1,41 @@
+.summary_wrapper {
+  @apply grid grid-cols-1 sm:grid-cols-2 gap-6;
+}
+
+.payment_link {
+  @apply text-primary-text flex flex-col justify-center items-center border border-border-color px-4 py-12 rounded-lg w-full mb-6 sm:mb-0;
+  background: url('/assets/images/light-03.jpg') no-repeat center center;
+}
+
+.button_wrapper {
+  @apply flex justify-center items-center gap-4;
+}
+
+.button_wrapper_desktop {
+  @apply hidden sm:flex;
+}
+
+.button_wrapper_mobile {
+  @apply flex sm:hidden;
+}
+
+.button {
+  padding: 5px 10px !important;
+  background: rgb(61, 135, 245) !important;
+  text-transform: capitalize !important;
+  color: #fff !important;
+  box-shadow: none !important;
+  border: 1px solid rgb(61, 135, 245) !important;
+  font-size: 0.875rem !important;
+  padding: 12px !important;
+  max-height: 40px !important;
+  border-radius: 5px !important;
+}
+.button_payment_link {
+  color: rgb(61, 135, 245) !important;
+  background: #fff !important;
+}
+.button_withdraw {
+  color: #fff !important;
+  background: rgb(61, 135, 245) !important;
+}

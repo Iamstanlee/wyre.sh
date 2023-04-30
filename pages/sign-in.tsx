@@ -34,8 +34,8 @@ export default function SignIn() {
             variables: {
               default: {
                 colors: {
-                  brand: '#3371ff',
-                  brandAccent: '#3371ff'
+                  brand: 'rgb(61, 135, 245)',
+                  brandAccent: 'rgb(61, 135, 245)'
                 },
                 fonts: {}
               }
