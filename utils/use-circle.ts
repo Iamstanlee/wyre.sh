@@ -1,12 +1,17 @@
 import { DbTable, PaymentLinkType } from '@/utils/enum';
 import { useSupabase } from '@/utils/use-supabase';
 import { useUser } from '@/utils/use-user';
-import { Circle, CircleEnvironments, Identity, PaymentCreationRequestVerificationEnum, TransferRequestBlockchainLocationTypeEnum, TransferRequestSourceWalletLocationTypeEnum } from '@circle-fin/circle-sdk';
+import {
+  Circle,
+  CircleEnvironments,
+  PaymentCreationRequestVerificationEnum,
+  TransferRequestBlockchainLocationTypeEnum,
+  TransferRequestSourceWalletLocationTypeEnum
+} from '@circle-fin/circle-sdk';
 import { v4 as uuidv4 } from 'uuid';
 import { env } from 'process';
 import { useState, useEffect } from 'react';
 import openpgp from 'openpgp';
-
 
 const useCircle = () => {
   ///Circle initialization
@@ -17,14 +22,12 @@ const useCircle = () => {
 
   const [ipAddress, setIpAddress] = useState(null);
 
-
   useEffect(() => {
     fetchIpAddress();
   }, []);
 
   const { supabase, supabaseUser } = useSupabase();
   const { user } = useUser();
-
 
   /// Get users IP address
   const fetchIpAddress = async () => {
@@ -110,13 +113,11 @@ const useCircle = () => {
       .single();
   }
 
-
   ///Get public key for encryption
   async function getEncryptKey(): Promise<string> {
     const data = (await circle.encryption.getPublicKey()).data.data;
     return data?.publicKey ?? '';
   }
-
 
   ///Transfer from a circle wallet to a crypto account
   async function sendFunds() {
@@ -127,13 +128,13 @@ const useCircle = () => {
         ///walllet id to transfar from
         id: '',
         ///Nor sure say I know wetien this one be oo
-        identities: [],
+        identities: []
       },
       destination: {
         type: TransferRequestBlockchainLocationTypeEnum.Blockchain,
         address: '',
         addressTag: '',
-        chain: 'ALGO',
+        chain: 'ALGO'
       },
       amount: {
         amount: '',
@@ -142,9 +143,7 @@ const useCircle = () => {
     });
   }
 
-
   async function encryptCardDetails(cardDetails: any) {
-
     const pubK = await getEncryptKey();
 
     try {
@@ -154,19 +153,42 @@ const useCircle = () => {
       //   message,
       //   publicKeys: [pubK],
       // });
-
     } catch (error) {
       console.error('Error encrypting message:', error);
     }
   }
 
+  async function createCard() {
+    circle.cards.createCard({
+      idempotencyKey: uuidv4(),
+      keyId: uuidv4(),
+      encryptedData: '',
+      billingDetails: {
+        name: '',
+        city: '',
+        country: '',
+        line1: '',
+        line2: '',
+        district: '',
+        postalCode: ''
+      },
+      expMonth: 0,
+      expYear: 2021,
+      metadata: {
+        email: '',
+        phoneNumber: '',
+        sessionId: '',
+        ipAddress: ''
+      }
+    });
+  }
 
   return {
     initAccount,
     createXulaWallet,
     createPaymentLink,
     makePaymentViaCard,
-    getWalletBalance,
+    getWalletBalance
   };
 };
 

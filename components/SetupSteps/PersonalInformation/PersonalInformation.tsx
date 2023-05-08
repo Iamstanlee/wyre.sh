@@ -9,7 +9,7 @@ import { DbTable, RouteKey } from '@/utils/enum';
 import { useRouter } from 'next/router';
 
 import style from './PersonalInformation.module.css';
-import useCircle from './hooks/use-circle';
+import useCircle from '../../../utils/use-circle';
 
 interface ISubmit {
   first_name: string;

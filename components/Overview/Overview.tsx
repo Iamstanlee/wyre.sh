@@ -9,7 +9,7 @@ import styles from './Overview.module.css';
 import SummaryCard from '../ui/SummaryCard/SummaryCard';
 import Button from '../ui/Button/Button';
 import CreatePayment from '../ui/Modal/CreatePayment';
-import useCircle from '../SetupSteps/PersonalInformation/hooks/use-circle';
+import useCircle from '../../utils/use-circle';
 
 const Overview = () => {
   const { user } = useUser();
