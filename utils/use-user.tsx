@@ -36,7 +36,6 @@ export default function UserContextProvider(props: Props) {
     setIsloading(true);
     const { data, error } = await supabase
       .from(DbTable.users)
-      // .select('*, payment:payments(*)')
       .select('*')
       .match({ id: supabaseUser?.id })
       .single();

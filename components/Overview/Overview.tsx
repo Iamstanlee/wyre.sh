@@ -1,22 +1,22 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import Link from 'next/link';
 import { Plus, ArrowBendUpRight, Copy, ShareFat } from '@phosphor-icons/react';
 
 import { useUser } from '@/utils/use-user';
 import { useSupabase } from '@/utils/use-supabase';
-import { RouteKey } from '@/utils/enum';
 
 import styles from './Overview.module.css';
 import SummaryCard from '../ui/SummaryCard/SummaryCard';
 import Button from '../ui/Button/Button';
 import CreatePayment from '../ui/Modal/CreatePayment';
+import useCircle from '../SetupSteps/PersonalInformation/hooks/use-circle';
 
 const Overview = () => {
   const { user } = useUser();
   const { supabase } = useSupabase();
   const { replace } = useRouter();
   const [openCreatePaymentModal, setOpenCreatePaymentModal] = useState(false);
+  const {} = useCircle();
 
   const handleCloseCreatePaymentModal = () => {
     setOpenCreatePaymentModal(false);
@@ -50,7 +50,7 @@ const Overview = () => {
           <p className="pb-2  text-black">Your Payment Link</p>
 
           <p className="mb-4 px-2 bg-primary rounded-full  text-white text-sm">
-            https://xula.com/pay/rukkie
+            https://xula.com/pay/{user?.username}
           </p>
           <div className="flex items-center gap-4 ">
             <Copy size={20} weight="bold" />
@@ -82,4 +82,5 @@ const Overview = () => {
     </div>
   );
 };
+
 export default Overview;

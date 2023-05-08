@@ -9,10 +9,12 @@ import { DbTable, RouteKey } from '@/utils/enum';
 import { useRouter } from 'next/router';
 
 import style from './PersonalInformation.module.css';
+import useCircle from './hooks/use-circle';
 
 interface ISubmit {
   first_name: string;
   last_name: string;
+  username: string;
 }
 
 const PersonalInformation = () => {
@@ -20,36 +22,40 @@ const PersonalInformation = () => {
   const { supabase, supabaseUser } = useSupabase();
   const { user } = useUser();
   const [formError, setFormError] = useState<string | null>();
+  const { initAccount, createXulaWallet } = useCircle();
 
   const submitForm = async (values: ISubmit) => {
     let { error } = await supabase.from(DbTable.users).insert({
       id: supabaseUser?.id,
       first_name: values.first_name,
       last_name: values.last_name,
-      email_address: supabaseUser?.email
+      email_address: supabaseUser?.email,
+      username: values.username
     });
     if (error) {
       setFormError(error.message);
     } else {
-      // might need to reload page
-      // reload();
-      replace(RouteKey.dashboard);
+      reload();
+      await replace(RouteKey.dashboard);
     }
   };
 
   return (
+
     <>
       <Formik
         initialValues={{
           first_name: user?.first_name ?? '',
-          last_name: user?.last_name ?? ''
+          last_name: user?.last_name ?? '',
+          username: user?.username ?? ''
         }}
         onSubmit={(values: ISubmit, { setSubmitting }) => {
           submitForm(values).then((_) => setSubmitting(false));
         }}
         validationSchema={Yup.object().shape({
           first_name: Yup.string().required('Please enter your first name'),
-          last_name: Yup.string().required('Please enter your last name')
+          last_name: Yup.string().required('Please enter your last name'),
+          username: Yup.string().required('Please enter a valid username')
         })}
       >
         {(props: FormikProps<ISubmit>) => {
@@ -92,6 +98,20 @@ const PersonalInformation = () => {
                   onBlur={handleBlur}
                   error={!!(errors.last_name && touched.last_name)}
                   errors={errors.last_name}
+                  optional={false}
+                />
+
+                <Input
+                  title="Username"
+                  type="text"
+                  name="username"
+                  id="username"
+                  placeholder="Enter your Username"
+                  value={values.username}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={!!(errors.username && touched.username)}
+                  errors={errors.username}
                   optional={false}
                 />
 
