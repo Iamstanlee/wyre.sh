@@ -13,6 +13,8 @@ export interface User {
   business?: Business;
   subscription?: Subscription;
   payment?: Payment;
+  username: string;
+  payment_link: string;
 }
 
 export interface Business {
@@ -24,6 +26,15 @@ export interface Business {
   brand_logo_url: string;
   niche: string;
   website_url: string;
+}
+
+
+export interface Wallet {
+  id: string;
+  user_id: string;
+  created_at: string;
+  balance: number;
+  unresolved: number;
 }
 
 export interface Payment {
@@ -64,13 +75,13 @@ export interface SubscriptionMetadata {
   order_id: number;
   order_item_id: number;
   status:
-    | 'on_trial'
-    | 'active'
-    | 'paused'
-    | 'past_due'
-    | 'unpaid'
-    | 'cancelled'
-    | 'expired';
+  | 'on_trial'
+  | 'active'
+  | 'paused'
+  | 'past_due'
+  | 'unpaid'
+  | 'cancelled'
+  | 'expired';
 
   product_id: number;
   variant_id: number;

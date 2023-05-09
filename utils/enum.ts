@@ -14,4 +14,11 @@ export enum DbTable {
   businesses = 'businesses',
   subscriptions = 'subscriptions',
   generated_contents = 'generated_contents',
+  payments = 'payments',
+  wallets = 'wallets',
+}
+
+export enum PaymentLinkType {
+  temp = 'TEMP_LINK',
+  parmanent = 'PERMA_LINK'
 }
