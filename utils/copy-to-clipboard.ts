@@ -3,7 +3,6 @@ export const copyToClipboard = async (text: string) => {
   try {
     await navigator.clipboard.writeText(text);
     isCopied = true;
-  } catch (err) {
-  }
+  } catch (err) {}
   return isCopied;
 };

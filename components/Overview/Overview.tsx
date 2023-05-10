@@ -10,17 +10,20 @@ import SummaryCard from '../ui/SummaryCard/SummaryCard';
 import Button from '../ui/Button/Button';
 import CreatePayment from '../ui/Modal/CreatePayment';
 import useCircle from '../../utils/use-circle';
+import { copyToClipboard } from '@/utils/copy-to-clipboard';
+import Toasts from '../ui/Toasts/Toasts';
 
 const Overview = () => {
   const { user } = useUser();
   const { supabase } = useSupabase();
   const { replace } = useRouter();
   const [openCreatePaymentModal, setOpenCreatePaymentModal] = useState(false);
-  const {} = useCircle();
 
   const handleCloseCreatePaymentModal = () => {
     setOpenCreatePaymentModal(false);
   };
+
+  const [isCopied, setIsCopied] = useState(false);
 
   return (
     <div className="flex flex-col gap-8">
@@ -49,11 +52,23 @@ const Overview = () => {
         <div className={styles.payment_link}>
           <p className="pb-2  text-black">Your Payment Link</p>
 
-          <p className="mb-4 px-2 bg-primary rounded-full  text-white text-sm">
+          <p className="mb-4 w-fit px-3 py-1 bg-primary rounded-full text-white text-sm">
             https://xula.com/pay/{user?.username}
           </p>
           <div className="flex items-center gap-4 ">
-            <Copy size={20} weight="bold" />
+            <Copy
+              size={20}
+              weight="bold"
+              onClick={async () => {
+                setIsCopied(
+                  await copyToClipboard(
+                    `https://xula.com/pay/${user?.username}`
+                  )
+                );
+
+                setTimeout(() => setIsCopied(false), 3000);
+              }}
+            />
             <ShareFat size={20} weight="bold" />
           </div>
         </div>
@@ -79,6 +94,7 @@ const Overview = () => {
         open={openCreatePaymentModal}
         handleCloseCreatePaymentModal={handleCloseCreatePaymentModal}
       />
+      {isCopied && <Toasts variant="info" show={isCopied} message="copied" />}
     </div>
   );
 };
