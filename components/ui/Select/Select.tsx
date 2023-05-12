@@ -24,7 +24,8 @@ interface Props {
 }
 
 const Select = (props: Props) => {
-  const { className, title, errors, optional, options,placeholder, ...rest } = props;
+  const { className, title, errors, optional, options, placeholder, ...rest } =
+    props;
   const rootClassName = cn(style.root, {}, className, errors && style.danger);
 
   return (
@@ -44,9 +45,13 @@ const Select = (props: Props) => {
         spellCheck="false"
         {...rest}
       >
-        <option value="" disabled selected>{placeholder}</option>
+        <option value="" disabled selected>
+          {placeholder}
+        </option>
         {options.map((option) => (
-          <option value={option.value}>{option.item}</option>
+          <option key={option.value} value={option.value}>
+            {option.item}
+          </option>
         ))}
       </select>
       {errors && <p className="text-xs text-danger">{errors}</p>}
