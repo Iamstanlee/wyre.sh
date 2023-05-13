@@ -36,12 +36,12 @@ const PersonalInformation = () => {
       setFormError(error.message);
     } else {
       reload();
+      // const data = await initAccount()
       await replace(RouteKey.dashboard);
     }
   };
 
   return (
-
     <>
       <Formik
         initialValues={{

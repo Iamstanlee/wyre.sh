@@ -71,7 +71,11 @@ const useCircle = () => {
       id: uuidv4(),
       link: user?.username,
       user_id: supabaseUser?.id,
-      type: PaymentLinkType.parmanent
+      type: PaymentLinkType.parmanent,
+      metadata: {
+        user_name: `${user?.first_name} ${user?.last_name}`,
+        user_email: user?.email_address
+      }
     });
     if (error) {
       //todo
