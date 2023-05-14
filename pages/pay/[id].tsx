@@ -14,7 +14,7 @@ function PayComponent() {
   const link = router.query.id;
 
   const [paymentDetails, setPaymentDetails] = useState<
-    PaymentLink | null | any
+    PaymentLink | null 
   >(null);
   const [isLoaading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
@@ -28,7 +28,7 @@ function PayComponent() {
       setIsLoading(true);
       const details = await getPaymentLink(link);
       if (details.data) {
-        setPaymentDetails(details.data);
+        setPaymentDetails(details.data as PaymentLink);
         setIsLoading(false);
       }
       if (details.error) {

@@ -55,6 +55,12 @@ export interface LinkCreatedModal {
   link: string | null;
 }
 
+export interface PaymentCreatedModal {
+  open: boolean;
+  handleClosePaymentCreatedModal: () => void;
+  status: string | null;
+}
+
 export interface PaymentLink {
   amount: string;
   created_at: string;
@@ -101,4 +107,38 @@ export interface TransactionMetadata {
   phoneNumber: string;
   sessionId: string;
   ipAddress: string;
+}
+export interface EncryptionKey {
+  publicKey: string;
+  keyId: string;
+}
+export interface CardInformationToEncrypt {
+  number: string;
+  cvv: string;
+}
+export interface CardInformation {
+  idempotencyKey?: string;
+  keyId?: string;
+  encryptedData?: string;
+  billingDetails: {
+    name: string;
+    city: string;
+    country: string;
+    line1: string;
+    line2?: string;
+    district?: string;
+    postalCode: string;
+  };
+
+  number: string;
+  cvv: string;
+  expMonth: string;
+  expYear: string;
+  metadata: {
+    email: string;
+    phoneNumber: string;
+    sessionId: string;
+    ipAddress: string;
+  };
+  amount: { amount: string; currency?: string };
 }

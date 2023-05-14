@@ -12,14 +12,38 @@ import { v4 as uuidv4 } from 'uuid';
 import { env } from 'process';
 import { useState, useEffect } from 'react';
 import openpgp from 'openpgp';
+import { createMessage, encrypt as pgpEncrypt, readKey } from 'openpgp';
+
 import { getRandomLink } from './random';
+import {
+  CardInformationToEncrypt,
+  EncryptionKey,
+  CardInformation
+} from '@/types';
 
 const useCircle = () => {
   ///Circle initialization
   const circle = new Circle(
-    env.NEXT_PUBLIC_CIRCLE_API_KEY ?? '',
+    process.env.NEXT_PUBLIC_CIRCLE_API_KEY ?? '',
     CircleEnvironments.sandbox // API base url
   );
+
+  const httpGetOptions = {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_CIRCLE_API_KEY}`
+    }
+  };
+
+  const httpPostOptions = {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      'content-type': 'application/json',
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_CIRCLE_API_KEY}`
+    }
+  };
 
   const [ipAddress, setIpAddress] = useState(null);
 
@@ -47,7 +71,11 @@ const useCircle = () => {
       id: uuidv4(),
       link: user?.username,
       user_id: supabaseUser?.id,
-      type: PaymentLinkType.parmanent
+      type: PaymentLinkType.parmanent,
+      metadata: {
+        user_name: `${user?.first_name} ${user?.last_name}`,
+        user_email: user?.email_address
+      }
     });
     if (error) {
       //todo
@@ -162,14 +190,8 @@ const useCircle = () => {
       .single();
   }
 
-  ///Get public key for encryption
-  async function getEncryptKey(): Promise<string> {
-    const data = (await circle.encryption.getPublicKey()).data.data;
-    return data?.publicKey ?? '';
-  }
-
   ///Transfer from a circle wallet to a crypto account
-  async function sendFunds() {
+  async function createCryptoPayment() {
     const { data } = await circle.transfers.createTransfer({
       idempotencyKey: uuidv4(),
       source: {
@@ -192,44 +214,139 @@ const useCircle = () => {
     });
   }
 
-  async function encryptCardDetails(cardDetails: any) {
-    const pubK = await getEncryptKey();
+  ///Get public key for encryption
+  // async function getEncryptKey(): Promise<string> {
+  //   const data = (await circle.encryption.getEncryptKey()).data.data;
+  //   return data?.publicKey ?? '';
+  // }
 
+  async function getEncryptKey() {
     try {
-      const message = openpgp.createMessage({ text: '', format: 'binary' });
+      const response = await fetch(
+        'https://api-sandbox.circle.com/v1/encryption/public',
+        httpGetOptions
+      );
 
-      // const encrypted = await openpgp.encrypt({
-      //   message,
-      //   publicKeys: [pubK],
-      // });
-    } catch (error) {
-      console.error('Error encrypting message:', error);
+      const data = await response.json();
+      return data.data as EncryptionKey;
+    } catch (err) {
+      console.error(err);
     }
   }
 
-  async function createCard() {
-    circle.cards.createCard({
-      idempotencyKey: uuidv4(),
-      keyId: uuidv4(),
-      encryptedData: '',
-      billingDetails: {
-        name: '',
-        city: '',
-        country: '',
-        line1: '',
-        line2: '',
-        district: '',
-        postalCode: ''
-      },
-      expMonth: 0,
-      expYear: 2021,
-      metadata: {
-        email: '',
-        phoneNumber: '',
-        sessionId: '',
-        ipAddress: ''
-      }
+  /// Encrypt card details
+  async function encryptCardDetails(cardInfo: CardInformationToEncrypt) {
+    const key = await getEncryptKey();
+    if (!key) return;
+    const decodedPublicKey = await readKey({
+      armoredKey: atob(key?.publicKey)
     });
+    const message = await createMessage({
+      text: JSON.stringify(cardInfo)
+    });
+
+    return pgpEncrypt({
+      message,
+      encryptionKeys: decodedPublicKey
+    })
+      .then((ciphertext) => {
+        console.log('ciphertext', btoa(ciphertext as string));
+
+        return {
+          encryptedMessage: btoa(ciphertext as string),
+          key: key.keyId
+        };
+      })
+      .catch((error) => console.error('Error encrypting message:', error));
+  }
+
+  /// Create card - save card details
+  async function createCard(cardInfo: CardInformation) {
+    const encryptedData = await encryptCardDetails({
+      number: cardInfo.number,
+      cvv: cardInfo.cvv
+    });
+
+    try {
+      const response = await fetch('https://api-sandbox.circle.com/v1/cards', {
+        ...httpPostOptions,
+        body: JSON.stringify({
+          idempotencyKey: uuidv4(),
+          keyId: encryptedData?.key,
+          encryptedData: encryptedData?.encryptedMessage as string,
+          billingDetails: cardInfo.billingDetails,
+          expMonth: parseInt(cardInfo.expMonth),
+          expYear: parseInt(cardInfo.expYear),
+          metadata: cardInfo.metadata
+        })
+      });
+
+      const data = await response.json();
+      // const data = await circle.cards.createCard({
+      //   idempotencyKey: uuidv4(),
+      //   keyId: encryptedData?.key,
+      //   encryptedData: encryptedData?.encryptedMessage as string,
+      //   billingDetails: cardInfo.billingDetails,
+      //   expMonth: parseInt(cardInfo.expMonth),
+      //   expYear: parseInt(cardInfo.expYear),
+      //   metadata: cardInfo.metadata
+      // });
+
+      console.log(data.data);
+
+      return { id: data.data?.id as string, encryptedData };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  /// Card payment - card to USDC using payment link
+  async function createCardPayment(cardInfo: CardInformation) {
+    console.log(cardInfo);
+
+    const cardData = await createCard(cardInfo);
+
+    try {
+      const response = await fetch(
+        'https://api-sandbox.circle.com/v1/payments',
+        {
+          ...httpPostOptions,
+          body: JSON.stringify({
+            idempotencyKey: uuidv4(),
+            keyId: cardData?.encryptedData?.key,
+            metadata: cardInfo.metadata,
+            amount: { amount: cardInfo.amount.amount, currency: 'USD' },
+            verification: 'none',
+            source: {
+              id: cardData?.id,
+              type: 'card'
+            }
+          })
+        }
+      );
+      if (response.status === 201) {
+        const data = await response.json();
+        console.log(data.data);
+        return data.data;
+      } else {
+        console.log(response);
+        return { error: 'something went wrong' };
+      }
+
+      // const data = await circle.payments.createPayment({
+      //   idempotencyKey: uuidv4(),
+      //   keyId: cardData?.encryptedData?.key,
+      //   metadata: cardInfo.metadata,
+      //   amount: { amount: cardInfo.amount.amount, currency: 'USD' },
+      //   verification: 'none',
+      //   source: {
+      //     id: cardData?.id,
+      //     type: 'card'
+      //   }
+      // });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return {
@@ -238,7 +355,9 @@ const useCircle = () => {
     createPaymentLink,
     makePaymentViaCard,
     getWalletBalance,
-    getPaymentLink
+    getPaymentLink,
+    encryptCardDetails,
+    createCardPayment
   };
 };
 

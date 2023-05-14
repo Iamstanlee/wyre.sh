@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Plus, ArrowBendUpRight, Copy, ShareFat } from '@phosphor-icons/react';
 
