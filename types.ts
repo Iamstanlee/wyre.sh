@@ -6,7 +6,6 @@ export interface PageMetadata {
 
 export interface User {
   id: string /* primary key */;
-
   email_address: string;
   first_name: string;
   last_name: string;
@@ -16,7 +15,7 @@ export interface User {
 }
 
 export interface Wallet {
-  id: string;
+  id: string /* primary key */;
   user_id: string;
   created_at: string;
   balance: number;
@@ -62,19 +61,18 @@ export interface PaymentCreatedModal {
 }
 
 export interface PaymentLink {
-  amount: string;
+  amount?: string;
   created_at: string;
   id: string;
   link: string;
   metadata: PaymentLinkMetadata;
-  status: string;
   type: string;
   user_id: string;
 }
 
 export interface PaymentLinkMetadata {
-  description: string;
-  receiver: string;
+  description?: string;
+  receiver?: string;
   user_name: string;
   user_email: string;
 }

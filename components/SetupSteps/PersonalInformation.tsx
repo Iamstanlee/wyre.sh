@@ -1,15 +1,15 @@
 import * as Yup from 'yup';
 import { useState } from 'react';
-import { Form, Formik, FormikProps } from 'formik';
-import { useSupabase } from '@/utils/use-supabase';
-import Input from '../../ui/Input';
-import Button from '../../ui/Button';
-import { useUser } from '@/utils/use-user';
-import { DbTable, RouteKey } from '@/utils/enum';
 import { useRouter } from 'next/router';
+import { Form, Formik, FormikProps } from 'formik';
+import { v4 as uuidv4 } from 'uuid';
 
 import style from './PersonalInformation.module.css';
-import useCircle from '../../../utils/use-circle';
+import Input from '@/components/ui/Input';
+import Button from '@/components/ui/Button';
+import { useUser } from '@/utils/use-user';
+import { useSupabase } from '@/utils/use-supabase';
+import { RouteKey } from '@/utils/enum';
 
 interface ISubmit {
   first_name: string;
@@ -19,24 +19,33 @@ interface ISubmit {
 
 const PersonalInformation = () => {
   const { reload, replace } = useRouter();
-  const { supabase, supabaseUser } = useSupabase();
+  const { supabaseUser } = useSupabase();
   const { user } = useUser();
   const [formError, setFormError] = useState<string | null>();
-  const { initAccount, createXulaWallet } = useCircle();
 
   const submitForm = async (values: ISubmit) => {
-    let { error } = await supabase.from(DbTable.users).insert({
-      id: supabaseUser?.id,
-      first_name: values.first_name,
-      last_name: values.last_name,
-      email_address: supabaseUser?.email,
-      username: values.username
+    let response = await fetch('/api/account-setup', {
+      method: 'POST',
+      headers: {
+        accept: 'application/json',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        wallet_id: uuidv4(),
+        user_id: supabaseUser?.id,
+        username: values.username,
+        email_address: supabaseUser?.email,
+        first_name: values.first_name,
+        last_name: values.last_name
+      })
     });
-    if (error) {
-      setFormError(error.message);
+
+    const data = await response.json();
+    console.log(data.message);
+
+    if (!response.ok) {
+      setFormError(data.message);
     } else {
-      reload();
-      // const data = await initAccount()
       await replace(RouteKey.dashboard);
     }
   };
