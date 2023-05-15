@@ -88,6 +88,67 @@ a {
   margin-top: 4.5rem;
 }
 
+tr {
+  border-top: 1px solid #eaecf0;
+}
+
+tr.list {
+  cursor: pointer;
+}
+
+tr.list:hover {
+  background-color: #eaecf0;
+}
+
+th,
+td {
+  font-size: 14px;
+  font-weight: 400;
+  text-align: end;
+  padding: 14px 14px 14px 5px;
+
+  min-width: 130px;
+}
+
+th:last-child,
+td:last-child {
+  min-width: max-content;
+}
+
+th {
+  color: #667085;
+}
+
+td {
+  color: #344054;
+}
+
+.status {
+  font-weight: 500;
+  font-size: 12px;
+  line-height: 18px;
+  border-radius: 16px;
+  padding: 4px 8px;
+  width: fit-content;
+  display: block;
+}
+
+.status.paid {
+  background: #ecfdf3;
+  color: #027a48;
+}
+
+.status.not_sent {
+  background: #fffaeb;
+  color: #b54708;
+  min-width: 64px;
+}
+
+.status.unpaid {
+  background: #fef3f2;
+  color: #b42318;
+}
+
 .main-wrapper {
   width: 100%;
 }
