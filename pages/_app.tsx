@@ -6,6 +6,7 @@ import SupabaseContextProvider from '@/utils/use-supabase';
 
 import 'styles/chrome-bug.css';
 import 'styles/main.css';
+import ToastProvider from '@/utils/use-toast';
 
 export default function App({ Component, pageProps }: AppProps) {
   useEffect(() => {
@@ -14,11 +15,13 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <SupabaseContextProvider>
-      <UserContextProvider>
-        <Scaffold>
-          <Component {...pageProps} />
-        </Scaffold>
-      </UserContextProvider>
+      <ToastProvider>
+        <UserContextProvider>
+          <Scaffold>
+            <Component {...pageProps} />
+          </Scaffold>
+        </UserContextProvider>
+      </ToastProvider>
     </SupabaseContextProvider>
   );
 }

@@ -1,30 +1,39 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { User } from 'types';
+import { PaymentLink, Transaction, User, Wallet } from 'types';
 import { useSupabase } from '@/utils/use-supabase';
-import { DbTable, RouteKey } from '@/utils/enum';
+import { DbTable, PaymentLinkType, RouteKey } from '@/utils/enum';
 import { useRouter } from 'next/router';
 
+interface UserBootstrapData extends User {
+  user: User;
+  wallet: Wallet;
+  payment_links: PaymentLink[];
+  transactions: Transaction[];
+}
+
+
 type UserContextType = {
-  user: User | null;
-  payment: User['payment'] | null;
+  user?: UserBootstrapData;
+  wallet?: Wallet;
+  paymentLinks?: PaymentLink[];
+  mainPaymentLink?: PaymentLink;
+  transactions: Transaction[];
   isLoading: boolean;
 };
 
-export const UserContext = createContext<UserContextType | undefined>(
-  undefined
-);
+export const UserContext = createContext<UserContextType | undefined>(undefined);
 
 export interface Props {
   [propName: string]: any;
 }
 
+
 export default function UserContextProvider(props: Props) {
   const { replace } = useRouter();
   const { supabase, supabaseUser } = useSupabase();
   const [isLoading, setIsloading] = useState(true);
-  const [user, setUser] = useState<User | null>(null);
+  const [bootstrapData, setBootstrapData] = useState<UserBootstrapData>();
 
-  const payment = useMemo(() => user?.payment, [user]);
 
   useEffect(() => {
     if (supabaseUser) {
@@ -32,19 +41,31 @@ export default function UserContextProvider(props: Props) {
     }
   }, [supabaseUser]);
 
+  const user = useMemo(() => bootstrapData, [bootstrapData]);
+  const wallet = useMemo(() => bootstrapData?.wallet, [bootstrapData]);
+  const paymentLinks = useMemo(() => bootstrapData?.payment_links, [bootstrapData]);
+  const mainPaymentLink = paymentLinks?.find((link) => link.type == PaymentLinkType.link);
+  const transactions = useMemo(() => bootstrapData?.transactions ?? [], [bootstrapData]);
+
+
+  const gotoSetup = () => {
+    replace(RouteKey.setup).then(() => setIsloading(false));
+  };
+
   const getUser = async () => {
     setIsloading(true);
     const { data, error } = await supabase
       .from(DbTable.users)
-      .select('*')
+      .select('*, payment_links(*), wallet:wallets(*), transactions(*)')
       .match({ id: supabaseUser?.id })
       .single();
     if (error) {
+      // TODO: Handle error better
       gotoSetup();
     } else {
-      const userData = data as User;
-      setUser(userData);
-      if (userData.first_name === null || userData.last_name === null) {
+      const bootstrap = data as UserBootstrapData;
+      setBootstrapData(bootstrap);
+      if (bootstrap.first_name === null || bootstrap.last_name === null) {
         gotoSetup();
       } else {
         setIsloading(false);
@@ -52,17 +73,15 @@ export default function UserContextProvider(props: Props) {
     }
   };
 
-  const gotoSetup = () => {
-    replace(RouteKey.setup).then(() => setIsloading(false));
-  };
 
-  const value = {
+  return <UserContext.Provider value={{
     isLoading,
     user,
-    payment
-  };
-
-  return <UserContext.Provider value={value} {...props} />;
+    wallet,
+    paymentLinks,
+    mainPaymentLink,
+    transactions
+  }} {...props} />;
 }
 
 export const useUser = () => {

@@ -28,22 +28,22 @@ const Summary = ({ link, paymentDetails }: SummaryProps) => {
         </div>
       </div>
 
-      <div className="py-6 border-t border-border-color">
-        <p className="text-grey text-sm pb-4 font-medium">Recipient</p>
-        <div>
-          <p className="text-black text-sm sm:text-base font-medium">
-            {paymentDetails.metadata.receiver}
-          </p>
-          <p className="text-black text-sm text-grey">
-            Description: {paymentDetails?.metadata.description}
-          </p>
-        </div>
+      {paymentDetails?.metadata?.receiver && <div className='py-6 border-t border-border-color'>
+      <p className='text-grey text-sm pb-4 font-medium'>Recipient</p>
+      <div>
+        <p className='text-black text-sm sm:text-base font-medium'>
+          {paymentDetails.metadata.receiver}
+        </p>
+        <p className='text-black text-sm text-grey'>
+          Description: {paymentDetails?.metadata.description}
+        </p>
       </div>
+    </div>}
 
-      <div className="flex justify-between font-medium border-t pt-3 border-border-color">
-        <p className="text-black text-sm sm:text-base">Amount</p>
-        <p className="text-black">${paymentDetails?.amount}</p>
-      </div>
+      {paymentDetails?.amount &&<div className='flex justify-between font-medium border-t pt-3 border-border-color'>
+        <p className='text-black text-sm sm:text-base'>Amount</p>
+        <p className='text-black'>${paymentDetails?.amount}</p>
+      </div>}
     </div>
   );
 };

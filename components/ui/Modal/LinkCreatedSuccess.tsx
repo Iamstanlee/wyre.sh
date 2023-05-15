@@ -5,7 +5,7 @@ import { LinkCreatedModal } from '@/types';
 import { copyToClipboard } from '@/utils/copy-to-clipboard';
 import Button from '../Button/Button';
 import styles from './Modal.module.css';
-import Toasts from '../Toasts/Toasts';
+import Toasts from '@/components/ui/Toast/Toast';
 
 const LinkCreatedSuccess = ({
   open,
@@ -42,14 +42,14 @@ const LinkCreatedSuccess = ({
 
         <div className="mt-2 flex flex-col items-center gap-4">
           <p className="mx-auto w-fit px-3 py-1 bg-primary rounded-full text-white text-sm">
-            https://xula.com/pay/{link}
+            https://wyre.sh/pay/{link}
           </p>
           <Copy
             size={20}
             weight="bold"
             onClick={async () => {
               setIsCopied(
-                await copyToClipboard(`https://xula.com/pay/${link}`)
+                await copyToClipboard(`https://wyre.sh/pay/${link}`)
               );
 
               setTimeout(() => setIsCopied(false), 3000);
@@ -57,7 +57,6 @@ const LinkCreatedSuccess = ({
           />
         </div>
       </div>
-      {isCopied && <Toasts variant="info" show={isCopied} message="copied" />}
     </div>
   );
 };

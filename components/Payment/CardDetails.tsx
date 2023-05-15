@@ -45,42 +45,37 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
     <>
       <Formik
         initialValues={{
-          billingDetails: {
-            name: exampleCards[0].formData.name,
-            line1: exampleCards[0].formData.line1,
-            line2: '',
-            district: exampleCards[0].formData.district,
-            country: exampleCards[0].formData.country,
-            city: exampleCards[0].formData.city,
-            postalCode: exampleCards[0].formData.postalCode
-          },
+          amount: '',
+          name: exampleCards[0].formData.name,
+          line1: exampleCards[0].formData.line1,
+          line2: '',
+          district: exampleCards[0].formData.district,
+          country: exampleCards[0].formData.country,
+          city: exampleCards[0].formData.city,
+          postalCode: exampleCards[0].formData.postalCode,
           expMonth: exampleCards[0].formData.expiry.month,
           expYear: exampleCards[0].formData.expiry.year,
           number: exampleCards[0].formData.cardNumber,
           cvv: exampleCards[0].formData.cvv,
-          metadata: {
-            email: paymentDetails.metadata.user_email,
-            phoneNumber: exampleCards[0].formData.phoneNumber,
-            sessionId: 'xxx',
-            ipAddress: '172.33.222.1'
-          },
-          amount: { amount: paymentDetails.amount }
+          email: paymentDetails.metadata.user_email,
+          phoneNumber: exampleCards[0].formData.phoneNumber,
+
         }}
         onSubmit={(values: CardInformation, { setSubmitting }) => {
-          console.log('hereeee');
-
           submitForm(values).then((_) => setSubmitting(false));
         }}
         validationSchema={Yup.object().shape({
-          // name: Yup.string().required('Please enter your name'),
+            name: Yup.string().required('Please enter your name'),
+            line1: Yup.string().required('Please enter an line1'),
+            country: Yup.string().required('Please enter an country'),
+            city: Yup.string().required('Please enter an city'),
+            postalCode: Yup.string().required('Please enter a valid postalCode'),
           expMonth: Yup.string().required('Please enter an expMonth'),
           expYear: Yup.string().required('Please enter an expYear'),
           number: Yup.string().required('Please enter an number'),
-          cvv: Yup.string().required('Please enter an cvv')
-          // line1: Yup.string().required('Please enter an line1'),
-          // country: Yup.string().required('Please enter an country'),
-          // city: Yup.string().required('Please enter an city'),
-          // postalCode: Yup.string().required('Please enter a valid postalCode')
+            amount:Yup.number().required('Please enter an amount'),
+
+
         })}
       >
         {(props: FormikProps<CardInformation>) => {
@@ -103,19 +98,17 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
 
               <div className="flex flex-col gap-6">
                 <Input
-                  value={values.amount.amount}
+                  value={values.amount}
                   id="amount"
                   name="amount"
-                  title="Exp Month"
+                  title="Amount"
                   placeholder="$0.00"
                   type="text"
                   optional={false}
                   className="w-1/3"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={!!(errors.amount?.amount && touched.amount?.amount)}
-                  errors={errors.amount?.amount}
-                  disabled={values.amount?.amount ? true : false}
+                  // disabled={values.amount?.amount ? true : false}
                 />
                 <Input
                   value={values.number}
@@ -127,8 +120,6 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                   optional={false}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={!!(errors.number && touched.number)}
-                  errors={errors.number}
                 />
                 <div className="flex justify-between items-end gap-2">
                   <Input
@@ -142,8 +133,6 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                     className="w-1/3"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={!!(errors.expMonth && touched.expMonth)}
-                    errors={errors.expMonth}
                   />
                   <Input
                     value={values.expYear}
@@ -156,8 +145,6 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                     className="w-1/3"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={!!(errors.expYear && touched.expYear)}
-                    errors={errors.expYear}
                   />
                 </div>
 
@@ -172,12 +159,10 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                   className="w-1/3"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={!!(errors.cvv && touched.cvv)}
-                  errors={errors.cvv}
                 />
 
                 <Input
-                  value={values.billingDetails.name}
+                  value={values.name}
                   id="name"
                   name="Name"
                   title="Name on Card"
@@ -186,16 +171,9 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                   type="text"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={
-                    !!(
-                      errors.billingDetails?.name &&
-                      touched.billingDetails?.name
-                    )
-                  }
-                  errors={errors.billingDetails?.name}
                 />
                 <Input
-                  value={values.billingDetails.line1}
+                  value={values.line1}
                   id="line1"
                   name="line1"
                   title="Address Line"
@@ -204,16 +182,9 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                   type="text"
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={
-                    !!(
-                      errors.billingDetails?.line1 &&
-                      touched.billingDetails?.line1
-                    )
-                  }
-                  errors={errors.billingDetails?.line1}
                 />
                 <Select
-                  value={values.billingDetails.country}
+                  value={values.country}
                   id="country"
                   name="country"
                   title="Country"
@@ -225,17 +196,11 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                   ]}
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  error={
-                    !!(
-                      errors.billingDetails?.country &&
-                      touched.billingDetails?.country
-                    )
-                  }
-                  errors={errors.billingDetails?.country}
+
                 />
                 <div className="flex  justify-between items-end gap-2">
                   <Input
-                    value={values.billingDetails.city}
+                    value={values.city}
                     id="city"
                     name="city"
                     title="City"
@@ -244,16 +209,9 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                     type="text"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={
-                      !!(
-                        errors.billingDetails?.city &&
-                        touched.billingDetails?.city
-                      )
-                    }
-                    errors={errors.billingDetails?.city}
                   />
                   <Input
-                    value={values.billingDetails.postalCode}
+                    value={values.postalCode}
                     id="postalCode"
                     name="postalCode"
                     title="Postal Code"
@@ -262,13 +220,6 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                     type="text"
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={
-                      !!(
-                        errors.billingDetails?.postalCode &&
-                        touched.billingDetails?.postalCode
-                      )
-                    }
-                    errors={errors.billingDetails?.postalCode}
                   />
                 </div>
                 <Button

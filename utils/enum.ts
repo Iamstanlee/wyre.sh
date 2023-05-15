@@ -10,14 +10,14 @@ export enum RouteKey {
 
 export enum DbTable {
   users = 'users',
-  payment_link = 'payment_link',
+  payment_links = 'payment_links',
   wallets = 'wallets',
   transactions = 'transactions'
 }
 
 export enum PaymentLinkType {
-  temp = 'TEMP_LINK',
-  parmanent = 'PERMA_LINK'
+  link = 'payment_link',
+  productPage = 'product_page',
 }
 
 export enum PaymentStatusType {

@@ -20,7 +20,7 @@ const CreatePayment = ({
   open,
   handleCloseCreatePaymentModal
 }: CreatePaymentModal) => {
-  const { createPaymentLink } = useCircle();
+  // const { createPaymentLink } = useCircle();
   const [formError, setFormError] = useState<string | null>();
   const [data, setData] = useState<string | null>('');
 
@@ -31,21 +31,21 @@ const CreatePayment = ({
     handleCloseCreatePaymentModal();
   };
 
-  const submitForm = async (values: ISubmit) => {
-    const result = await createPaymentLink(
-      values.name,
-      values.amount,
-      values.description
-    );
-
-    if (result?.error) {
-      setFormError(result.error);
-    } else {
-      setData(result?.data?.link);
-      setOpenLinkCreatedModal(true);
-      // show dailogue with payment link and copy button
-    }
-  };
+  // const submitForm = async (values: ISubmit) => {
+  //   const result = await createPaymentLink(
+  //     values.name,
+  //     values.amount,
+  //     values.description
+  //   );
+  //
+  //   if (result?.error) {
+  //     setFormError(result.error);
+  //   } else {
+  //     setData(result?.data?.link);
+  //     setOpenLinkCreatedModal(true);
+  //     // show dailogue with payment link and copy button
+  //   }
+  // };
 
   return (
     <div
@@ -80,7 +80,7 @@ const CreatePayment = ({
               description: ''
             }}
             onSubmit={(values: ISubmit, { setSubmitting }) => {
-              submitForm(values).then((_) => setSubmitting(false));
+              // submitForm(values).then((_) => setSubmitting(false));
             }}
             validationSchema={Yup.object().shape({
               name: Yup.string().required('Please enter your name'),
@@ -93,8 +93,6 @@ const CreatePayment = ({
             {(props: FormikProps<ISubmit>) => {
               const {
                 values,
-                touched,
-                errors,
                 handleBlur,
                 handleChange,
                 isSubmitting
@@ -114,8 +112,6 @@ const CreatePayment = ({
                     value={values.name}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={!!(errors.name && touched.name)}
-                    errors={errors.name}
                   />
                   <Input
                     title="Amount"
@@ -127,8 +123,6 @@ const CreatePayment = ({
                     value={values.amount}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={!!(errors.amount && touched.amount)}
-                    errors={errors.amount}
                   />
                   <Input
                     title="Description"
@@ -140,8 +134,6 @@ const CreatePayment = ({
                     value={values.description}
                     onChange={handleChange}
                     onBlur={handleBlur}
-                    error={!!(errors.description && touched.description)}
-                    errors={errors.description}
                   />
                   <Button
                     loading={isSubmitting}

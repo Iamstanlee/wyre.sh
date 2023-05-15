@@ -1,4 +1,4 @@
-import { DbTable, PaymentLinkType, PaymentStatusType } from './enum';
+import { DbTable } from './enum';
 import { useSupabase } from './use-supabase';
 import { useUser } from './use-user';
 import {
@@ -9,15 +9,10 @@ import {
   TransferRequestSourceWalletLocationTypeEnum
 } from '@circle-fin/circle-sdk';
 import { v4 as uuidv4 } from 'uuid';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createMessage, encrypt as pgpEncrypt, readKey } from 'openpgp';
-
-import { getRandomLink } from './random';
-import {
-  CardInformationToEncrypt,
-  EncryptionKey,
-  CardInformation
-} from '@/types';
+import { CardInformation, CardInformationToEncrypt, EncryptionKey } from '@/types';
+import { exampleCards } from '@/data/mock';
 
 const useCircle = () => {
   ///   Circle initialization
@@ -68,54 +63,54 @@ const useCircle = () => {
   ///   Fetch Payment Link Address
   async function getPaymentLink(link: string | string[]) {
     let { data, error } = await supabase
-      .from(DbTable.payment_link)
+      .from(DbTable.payment_links)
       .select('*')
-      .match({ link: link })
+      .match({ slug: link })
       .single();
 
     return { data, error };
   }
 
   ///   Create Temporary Payment Link
-  async function createPaymentLink(
-    receiver: string,
-    amount: string,
-    description: string
-  ) {
-    const paymentLink = getRandomLink();
-    const linkNotAvailable = await getPaymentLink(paymentLink);
-
-    if (linkNotAvailable.data) {
-      createPaymentLink(receiver, amount, description);
-    } else {
-      let { data, error } = await supabase
-        .from(DbTable.payment_link)
-        .insert({
-          id: uuidv4(),
-          link: paymentLink,
-          user_id: supabaseUser?.id,
-          type: PaymentLinkType.temp,
-          amount: amount,
-          status: PaymentStatusType.created,
-          metadata: {
-            receiver,
-            description,
-            user_name: `${user?.first_name} ${user?.last_name}`,
-            user_email: user?.email_address
-          }
-        })
-        .select('link')
-        .single();
-
-      if (error) {
-        //todo
-        return { error: error.message };
-      } else {
-        //todo
-        return { data: data };
-      }
-    }
-  }
+  // async function createPaymentLink(
+  //   receiver: string,
+  //   amount: string,
+  //   description: string
+  // ) {
+  //   const paymentLink = getRandomLink();
+  //   const linkNotAvailable = await getPaymentLink(paymentLink);
+  //
+  //   if (linkNotAvailable.data) {
+  //     createPaymentLink(receiver, amount, description);
+  //   } else {
+  //     let { data, error } = await supabase
+  //       .from(DbTable.payment_link)
+  //       .insert({
+  //         id: uuidv4(),
+  //         link: paymentLink,
+  //         user_id: supabaseUser?.id,
+  //         type: PaymentLinkType.temp,
+  //         amount: amount,
+  //         status: PaymentStatusType.created,
+  //         metadata: {
+  //           receiver,
+  //           description,
+  //           user_name: `${user?.first_name} ${user?.last_name}`,
+  //           user_email: user?.email_address
+  //         }
+  //       })
+  //       .select('link')
+  //       .single();
+  //
+  //     if (error) {
+  //       //todo
+  //       return { error: error.message };
+  //     } else {
+  //       //todo
+  //       return { data: data };
+  //     }
+  //   }
+  // }
 
   ///   Make Payment Using Circle API
   async function makePaymentViaCard() {
@@ -231,10 +226,18 @@ const useCircle = () => {
           idempotencyKey: uuidv4(),
           keyId: encryptedData?.key,
           encryptedData: encryptedData?.encryptedMessage as string,
-          billingDetails: cardInfo.billingDetails,
+          billingDetails: {  name: cardInfo.name,
+            line1: cardInfo.line1,
+            line2: '',
+            district: cardInfo.district,
+            country: cardInfo.country,
+            city: cardInfo.city,
+            postalCode: cardInfo.postalCode },
           expMonth: parseInt(cardInfo.expMonth),
           expYear: parseInt(cardInfo.expYear),
-          metadata: cardInfo.metadata
+          metadata: { email: cardInfo.email,
+            phoneNumber: cardInfo.phoneNumber, sessionId: 'xxx',
+          ipAddress: '172.33.222.1' },
         })
       });
 
@@ -251,6 +254,7 @@ const useCircle = () => {
   ///   Card payment - card to USDC using payment link
   async function createCardPayment(cardInfo: CardInformation) {
     console.log(cardInfo);
+    console.log('amount', parseFloat(cardInfo.amount).toFixed(2));
 
     const cardData = await createCard(cardInfo);
 
@@ -262,8 +266,16 @@ const useCircle = () => {
           body: JSON.stringify({
             idempotencyKey: uuidv4(),
             keyId: cardData?.encryptedData?.key,
-            metadata: cardInfo.metadata,
-            amount: { amount: cardInfo.amount.amount, currency: 'USD' },
+            metadata: {
+              email: cardInfo.email,
+              phoneNumber: cardInfo.phoneNumber,
+              sessionId: 'xxx',
+              ipAddress: '172.33.222.1'
+            },
+            amount: {
+              amount: parseFloat(cardInfo.amount).toFixed(2),
+              currency: 'USD'
+            },
             verification: 'none',
             source: {
               id: cardData?.id,
@@ -286,7 +298,7 @@ const useCircle = () => {
   }
 
   return {
-    createPaymentLink,
+    // createPaymentLink,
     makePaymentViaCard,
     getWalletBalance,
     getPaymentLink,
