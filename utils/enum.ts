@@ -27,3 +27,8 @@ export enum PaymentStatusType {
   failed = 'FAILED',
   cancelled = 'CANCELLED'
 }
+
+export enum TransactionType{
+  link = 'payment_link',
+  productPage = 'product_page',
+}

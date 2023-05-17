@@ -8,7 +8,7 @@ import SummaryCard from '@/components/ui/SummaryCard/SummaryCard';
 import Input from '@/components/ui/Input/Input';
 import Button from '@/components/ui/Button/Button';
 
-function DashboardComponent() {
+function TransactionComponent() {
   return (
     <Layout>
       
@@ -88,4 +88,4 @@ function DashboardComponent() {
   );
 }
 
-export default withLoading(DashboardComponent);
+export default withLoading(TransactionComponent);
