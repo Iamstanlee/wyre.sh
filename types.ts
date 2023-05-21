@@ -1,4 +1,5 @@
-import { PaymentLinkType } from '@/utils/enum';
+import { PaymentLinkType, PaymentStatusType } from '@/utils/enum';
+import { Chain, MoneyCurrencyEnum } from '@circle-fin/circle-sdk';
 
 export interface PageMetadata {
   title: string;
@@ -34,34 +35,6 @@ export interface Payment {
   metadata: string;
 }
 
-export interface Toast {
-  message?: string;
-  variant?: 'success' | 'info' | 'warning' | 'danger';
-  show?: boolean;
-}
-
-export interface SummaryCard {
-  name: string;
-  amount: string;
-}
-
-export interface CreatePaymentModal {
-  open: boolean;
-  handleCloseCreatePaymentModal: () => void;
-}
-
-export interface LinkCreatedModal {
-  open: boolean;
-  handleCloseLinkCreatedModal: () => void;
-  link: string | null;
-}
-
-export interface PaymentCreatedModal {
-  open: boolean;
-  handleClosePaymentCreatedModal: () => void;
-  status: string | null;
-}
-
 export interface PaymentLink {
   created_at: string;
   id: string;
@@ -71,7 +44,6 @@ export interface PaymentLink {
   user_id: string;
 }
 
-
 export interface PaymentLinkMetadata {
   description?: string;
   receiver?: string;
@@ -80,18 +52,24 @@ export interface PaymentLinkMetadata {
 }
 
 export interface Transaction {
-  idempotencyKey: string;
-  keyId: string;
+  id: string;
+  created_at: string;
+  status: string;
+  amount: string;
   metadata: TransactionMetadata;
-  amount: TransactionAmount;
-  autoCapture: true;
-  verification: string;
-  verificationSuccessUrl: string;
-  verificationFailureUrl: string;
+  user_id: string;
+  payment_slug: string;
+  type: string;
   source: TransactionSource;
-  description: string;
-  encryptedData: string;
-  channel: string;
+  updated_at: string;
+  // keyId: string;
+  // autoCapture: true;
+  // verification: string;
+  // verificationSuccessUrl: string;
+  // verificationFailureUrl: string;
+  // description: string;
+  // encryptedData: string;
+  // channel: string;
 }
 
 export interface TransactionSource {
@@ -107,8 +85,8 @@ export interface TransactionAmount {
 export interface TransactionMetadata {
   email: string;
   phoneNumber: string;
-  sessionId: string;
-  ipAddress: string;
+  // sessionId: string;
+  // ipAddress: string;
 }
 
 export interface EncryptionKey {
@@ -141,5 +119,66 @@ export interface CardInformation {
   sessionId?: string;
   ipAddress?: string;
   amount: string;
-  currency?: string
+  currency?: string;
+}
+
+export interface Transfer {
+  id?: string;
+  user_id?: string;
+  created_at?: string;
+  updated_at?: string;
+  status?: PaymentStatusType;
+  amount: TransferAmount;
+  destination: TransferDestination;
+  source?: TransferSource;
+}
+
+export interface TransferSource {
+  id: string;
+  type: string;
+}
+
+export interface TransferAmount {
+  amount: string;
+  currency?: Chain;
+}
+
+export interface TransferDestination {
+  type?: string;
+  address: string;
+  addressTag: string;
+  chain: Chain;
+}
+
+export interface Toast {
+  message?: string;
+  variant?: 'success' | 'info' | 'warning' | 'danger';
+  show?: boolean;
+}
+
+export interface SummaryCard {
+  name: string;
+  amount: string;
+}
+
+export interface CreatePaymentModal {
+  open: boolean;
+  handleCloseCreatePaymentModal: () => void;
+}
+
+export interface LinkCreatedModal {
+  open: boolean;
+  handleCloseLinkCreatedModal: () => void;
+  link: string | null;
+}
+
+export interface PaymentCreatedModal {
+  open: boolean;
+  handleClosePaymentCreatedModal: () => void;
+  status: string | null;
+}
+
+export interface WithdrawUSDCModal {
+  open: boolean;
+  handleCloseWithdrawUSDCModal: () => void;
 }

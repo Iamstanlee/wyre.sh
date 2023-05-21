@@ -1,5 +1,8 @@
 .root {
   @apply bg-white py-2 px-3 w-full appearance-none transition duration-150 ease-in-out border border-border-color text-primary-text rounded;
+  background: url('/assets/icons/caret-down-bold.svg') no-repeat right;
+  background-position-x: 98%;
+  background-size: 18px;
 }
 
 .root:focus {

@@ -17,7 +17,7 @@ interface Props {
   error?: boolean;
   name: SelectHTMLAttributes<HTMLSelectElement>['name'];
   id: SelectHTMLAttributes<HTMLSelectElement>['id'];
-  placeholder: SelectHTMLAttributes<HTMLSelectElement>['placeholder'];
+  placeholder?: SelectHTMLAttributes<HTMLSelectElement>['placeholder'];
   errors?: string;
   optional: boolean;
   options: Array<OptionProps>;
@@ -45,9 +45,11 @@ const Select = (props: Props) => {
         spellCheck="false"
         {...rest}
       >
-        <option value="" disabled selected>
-          {placeholder}
-        </option>
+        {placeholder && (
+          <option value="" disabled selected>
+            {placeholder}
+          </option>
+        )}
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.item}

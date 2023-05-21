@@ -17,18 +17,17 @@ export enum DbTable {
 
 export enum PaymentLinkType {
   link = 'payment_link',
-  productPage = 'product_page',
+  productPage = 'product_page'
 }
 
 export enum PaymentStatusType {
-  created = 'CREATED',
-  pending = 'PENDING',
-  success = 'SUCCESS',
-  failed = 'FAILED',
-  cancelled = 'CANCELLED'
+  pending = 'pending',
+  success = 'success',
+  failed = 'failed',
+  cancelled = 'cancelled'
 }
 
-export enum TransactionType{
+export enum TransactionType {
   link = 'payment_link',
-  productPage = 'product_page',
+  productPage = 'product_page'
 }

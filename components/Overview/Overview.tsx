@@ -19,11 +19,10 @@ const Overview = () => {
     setOpenCreatePaymentModal(false);
   };
 
-
   return (
-    <div className='flex flex-col gap-8'>
-      <div className='flex justify-between'>
-        <h3 className='text-xl font-medium text-black pt-4 pb-4'>Overview</h3>
+    <div className="flex flex-col gap-8">
+      <div className="flex justify-between">
+        <h3 className="text-xl font-medium text-black pt-4 pb-4">Overview</h3>
         <div
           className={`${styles.button_wrapper} ${styles.button_wrapper_desktop}`}
         >
@@ -35,25 +34,28 @@ const Overview = () => {
           {/*  <Plus size={16} weight='bold' />*/}
           {/*</Button>*/}
           <Button className={styles.button + ' ' + styles.button_withdraw}>
-            <span className='mr-1'>Withdraw USDC</span>
-            <ArrowBendUpRight size={16} weight='bold' />
+            <span className="mr-1">Withdraw USDC</span>
+            <ArrowBendUpRight size={16} weight="bold" />
           </Button>
         </div>
       </div>
 
       <div className={styles.summary_wrapper}>
-        <SummaryCard name='Available USDC Balance' amount={wallet?.balance.toString() ?? '0.00'} />
+        <SummaryCard
+          name="Available USDC Balance"
+          amount={wallet?.balance.toString() ?? '0.00'}
+        />
         {/* <SummaryCard name="Total USDC Earnings" amount="0" /> */}
         <div className={styles.payment_link}>
-          <p className='pb-2  text-black'>Your Payment Link</p>
+          <p className="pb-2  text-black">Your Payment Link</p>
 
-          <p className='mb-4 w-fit px-3 py-1 bg-primary rounded-full text-white text-sm'>
+          <p className="mb-4 w-fit px-3 py-1 bg-primary rounded-full text-white text-sm">
             https://wyre.sh/pay/{mainPaymentLink?.slug}
           </p>
-          <div className='flex items-center gap-4 '>
+          <div className="flex items-center gap-4 ">
             <Copy
               size={20}
-              weight='bold'
+              weight="bold"
               onClick={async () => {
                 await copyToClipboard(
                   `https://wyre.sh/pay/${mainPaymentLink?.slug}`
@@ -61,7 +63,7 @@ const Overview = () => {
                 show('Copied to clipboard');
               }}
             />
-            <ShareFat size={20} weight='bold' />
+            <ShareFat size={20} weight="bold" />
           </div>
         </div>
       </div>
@@ -77,8 +79,8 @@ const Overview = () => {
         {/*  <Plus size={16} weight="bold" />*/}
         {/*</Button>*/}
         <Button className={styles.button + ' ' + styles.button_withdraw}>
-          <span className='mr-1'>Withdraw USDC</span>
-          <ArrowBendUpRight size={16} weight='bold' />
+          <span className="mr-1">Withdraw USDC</span>
+          <ArrowBendUpRight size={16} weight="bold" />
         </Button>
       </div>
 

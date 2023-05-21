@@ -133,21 +133,27 @@ td {
   display: block;
 }
 
-.status.paid {
+.status.cancelled {
+  background: #fffaeb;
+  color: #b54708;
+}
+
+.status.failed {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.status.pending {
+  background: rgb(235, 243, 254);
+  color: rgb(51, 132, 252);
+}
+
+.status.success {
   background: #ecfdf3;
   color: #027a48;
 }
 
-.status.not_sent {
-  background: #fffaeb;
-  color: #b54708;
-  min-width: 64px;
-}
 
-.status.unpaid {
-  background: #fef3f2;
-  color: #b42318;
-}
 
 .main-wrapper {
   width: 100%;
