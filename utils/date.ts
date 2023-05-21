@@ -1,49 +1,50 @@
+const monthsShortHand = [
+  'Jan',
+  'Feb',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'Aug',
+  'Sept',
+  'Oct',
+  'Nov',
+  'Dec'
+];
+
+const monthsWithNumber = [
+  '01',
+  '02',
+  '03',
+  '04',
+  '05',
+  '06',
+  '07',
+  '08',
+  '09',
+  '10',
+  '11',
+  '12'
+];
+
 export const today = () => {
   const date = new Date();
-  let months = [
-    'Jan',
-    'Feb',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'Aug',
-    'Sept',
-    'Oct',
-    'Nov',
-    'Dec'
-  ];
 
   let day = date.getDate();
-  let month = months[date.getMonth()];
+  let month = monthsShortHand[date.getMonth()];
   let year = date.getFullYear();
   return `${day} ${month}, ${year}`;
 };
 
 export const todayWithMonthNumber = () => {
   const date = new Date();
-  let months = [
-    '01',
-    '02',
-    '03',
-    '04',
-    '05',
-    '06',
-    '07',
-    '08',
-    '09',
-    '10',
-    '11',
-    '12'
-  ];
 
   let day = date.getDate();
-  let month = months[date.getMonth()];
+  let month = monthsWithNumber[date.getMonth()];
   let year = date.getFullYear();
   return `${year}-${month}-${day}`;
 };
-
 
 export const isToday = (date: string) => {
   const today = new Date();
@@ -63,4 +64,13 @@ export const isWithInLast3Days = (date: string) => {
     dateToCheck.getMonth() === today.getMonth() &&
     dateToCheck.getFullYear() === today.getFullYear()
   );
+};
+
+export const paymentDate = (date: string) => {
+  let formattedDate = new Date(date);
+
+  let day = formattedDate.getDate();
+  let month = monthsShortHand[formattedDate.getMonth()];
+  let year = formattedDate.getFullYear();
+  return `${day} ${month}, ${year}`;
 };

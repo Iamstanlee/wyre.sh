@@ -16,29 +16,31 @@ interface Props {
   placeholder: InputHTMLAttributes<HTMLInputElement>['placeholder'];
   optional: boolean;
   disabled?: boolean;
+  note?: string;
 }
 
 const Input = (props: Props) => {
-  const { className, title, error, optional, ...rest } = props;
+  const { className, title, error, optional, note, ...rest } = props;
   const rootClassName = cn(style.root, {}, className, error && style.danger);
 
   return (
     <div>
       {title && (
-        <label className='text-primary-text text-sm mb-1 block'>
+        <label className="text-primary-text text-sm mb-1 block">
           {title}
-          {!optional && <span className='text-danger'>*</span>}
+          {!optional && <span className="text-danger">*</span>}
         </label>
       )}
       <input
         className={rootClassName}
-        autoComplete='off'
-        autoCorrect='off'
-        autoCapitalize='off'
-        spellCheck='false'
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck="false"
         {...rest}
       />
-      {error && <p className='text-xs text-danger'>{error}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
+      {note && <p className="text-xs text-info">{note}</p>}
     </div>
   );
 };

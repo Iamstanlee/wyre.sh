@@ -21,7 +21,8 @@ import {
   CardInformationToEncrypt,
   EncryptionKey,
   PaymentLink,
-  Transaction
+  Transaction,
+  Transfer
 } from '@/types';
 import { exampleCards } from '@/data/mock';
 import { supabaseAdmin } from '@/utils/supabase-admin';
@@ -55,8 +56,10 @@ const useCircle = () => {
 
   ///   Fetch and Update IP Address
   const [ipAddress, setIpAddress] = useState(null);
+  const [masterWalletId, setMasterWalletId] = useState<string>('');
   useEffect(() => {
     fetchIpAddress();
+    getMasterWalletId();
   }, []);
 
   const { supabase, supabaseUser } = useSupabase();
@@ -72,6 +75,16 @@ const useCircle = () => {
       console.error('Error fetching IP address:', error);
     }
   };
+
+  async function getMasterWalletId() {
+    fetch('https://api-sandbox.circle.com/v1/configuration', httpGetOptions)
+      .then((response) => response.json())
+      .then((response) => {
+        console.log(response);
+        setMasterWalletId(response.data.payments.masterWalletId);
+      })
+      .catch((err) => console.error(err));
+  }
 
   ///   Fetch Payment Link Address
   async function getPaymentLink(link: string | string[]) {
@@ -161,27 +174,60 @@ const useCircle = () => {
   }
 
   ///   Transfer from a circle wallet to a crypto account
-  async function createCryptoPayment() {
-    const { data } = await circle.transfers.createTransfer({
-      idempotencyKey: uuidv4(),
-      source: {
-        type: TransferRequestSourceWalletLocationTypeEnum.Wallet,
-        ///walllet id to transfar from
-        id: '',
-        ///Nor sure say I know wetien this one be oo
-        identities: []
-      },
+  // async function createCryptoPayment(values: Transfer) {
+  //   const { data } = await circle.transfers.createTransfer({
+  //     idempotencyKey: uuidv4(),
+  //     source: {
+  //       type: TransferRequestSourceWalletLocationTypeEnum.Wallet,
+  //       id: masterWalletId,
+
+  //       ///Nor sure say I know wetien this one be oo
+  //       identities: []
+  //     },
+  //     destination: {
+  //       type: TransferRequestBlockchainLocationTypeEnum.Blockchain,
+  //       address: values.destination.address,
+  //       addressTag: values.destination.addressTag,
+  //       chain: values.destination.chain
+  //     },
+  //     amount: {
+  //       amount: values.amount.amount,
+  //       currency: values.amount.currency
+  //     }
+  //   });
+
+  //   console.log(data);
+  // }
+
+  async function createCryptoPayment(values: Transfer) {
+    console.log(parseFloat(values.amount.amount).toFixed(2));
+    const body = {
       destination: {
-        type: TransferRequestBlockchainLocationTypeEnum.Blockchain,
-        address: '',
-        addressTag: '',
-        chain: 'ALGO'
+        type: 'verified_blockchain',
+        addressId: values.destination.address
+        // chain: values.destination.chain
       },
+      // source: {
+      //   type: 'wallet',
+      //   id: masterWalletId
+      // },
       amount: {
-        amount: '',
-        currency: 'BTC'
-      }
-    });
+        amount: parseFloat(values.amount.amount).toFixed(2),
+        currency: values.amount.currency
+      },
+      idempotencyKey: uuidv4()
+    };
+
+    console.log(body);
+    
+    
+    fetch('https://api-sandbox.circle.com/v1/businessAccount/transfers', {
+      ...httpPostOptions,
+      body: JSON.stringify(body)
+    })
+      .then((response) => response.json())
+      .then((response) => console.log(response))
+      .catch((err) => console.error(err));
   }
 
   ///   Get public key for encryption
@@ -270,7 +316,11 @@ const useCircle = () => {
   }
 
   ///   Card payment - card to USDC using payment link
-  async function createCardPayment(cardInfo: CardInformation, user_id: string,slug:string) {
+  async function createCardPayment(
+    cardInfo: CardInformation,
+    user_id: string,
+    slug: string
+  ) {
     console.log(cardInfo);
 
     const cardData = await createCard(cardInfo);
@@ -312,17 +362,18 @@ const useCircle = () => {
             .from(DbTable.transactions)
             .insert({
               id: data.data.id,
-              amount: data.data.amount,
+              amount: data.data.amount.amount,
               status: PaymentStatusType.pending,
               metadata: data.data.metadata,
               source: data.data.source,
               user_id,
-              updateDate: data.data.updateDate,
+              updated_at: data.data.updateDate,
               // refunds: data.data.refunds,
               type: TransactionType.link,
-              payment_slug:slug
+              payment_slug: slug
             })
-            .select().single()
+            .select()
+            .single();
 
         if (transactionData) {
           console.log(transactionData);
@@ -348,7 +399,8 @@ const useCircle = () => {
     getPaymentLink,
     encryptCardDetails,
     createCard,
-    createCardPayment
+    createCardPayment,
+    createCryptoPayment
   };
 };
 

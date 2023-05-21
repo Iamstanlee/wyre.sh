@@ -1,0 +1,14 @@
+
+
+.button {
+       padding: 5px 10px !important;
+       text-transform: capitalize !important;
+       color: #fff !important;
+              background: rgb(61, 135, 245) !important;
+       box-shadow: none !important;
+       border: 1px solid rgb(61, 135, 245) !important;
+       font-size: 0.875rem !important;
+       padding: 12px !important;
+       max-height: 40px !important;
+       border-radius: 5px !important;
+}
