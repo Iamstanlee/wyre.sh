@@ -1,4 +1,9 @@
-import { DbTable } from './enum';
+import {
+  DbTable,
+  PaymentLinkType,
+  PaymentStatusType,
+  TransactionType
+} from './enum';
 import { useSupabase } from './use-supabase';
 import { useUser } from './use-user';
 import {
@@ -11,8 +16,16 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import { useEffect, useState } from 'react';
 import { createMessage, encrypt as pgpEncrypt, readKey } from 'openpgp';
-import { CardInformation, CardInformationToEncrypt, EncryptionKey } from '@/types';
+import {
+  CardInformation,
+  CardInformationToEncrypt,
+  EncryptionKey,
+  PaymentLink,
+  Transaction
+} from '@/types';
 import { exampleCards } from '@/data/mock';
+import { supabaseAdmin } from '@/utils/supabase-admin';
+import { getRandomLink } from '@/utils/random';
 
 const useCircle = () => {
   ///   Circle initialization
@@ -226,18 +239,23 @@ const useCircle = () => {
           idempotencyKey: uuidv4(),
           keyId: encryptedData?.key,
           encryptedData: encryptedData?.encryptedMessage as string,
-          billingDetails: {  name: cardInfo.name,
+          billingDetails: {
+            name: cardInfo.name,
             line1: cardInfo.line1,
             line2: '',
             district: cardInfo.district,
             country: cardInfo.country,
             city: cardInfo.city,
-            postalCode: cardInfo.postalCode },
+            postalCode: cardInfo.postalCode
+          },
           expMonth: parseInt(cardInfo.expMonth),
           expYear: parseInt(cardInfo.expYear),
-          metadata: { email: cardInfo.email,
-            phoneNumber: cardInfo.phoneNumber, sessionId: 'xxx',
-          ipAddress: '172.33.222.1' },
+          metadata: {
+            email: cardInfo.email,
+            phoneNumber: cardInfo.phoneNumber,
+            sessionId: 'xxx',
+            ipAddress: '172.33.222.1'
+          }
         })
       });
 
@@ -252,9 +270,8 @@ const useCircle = () => {
   }
 
   ///   Card payment - card to USDC using payment link
-  async function createCardPayment(cardInfo: CardInformation) {
+  async function createCardPayment(cardInfo: CardInformation, user_id: string,slug:string) {
     console.log(cardInfo);
-    console.log('amount', parseFloat(cardInfo.amount).toFixed(2));
 
     const cardData = await createCard(cardInfo);
 
@@ -284,10 +301,37 @@ const useCircle = () => {
           })
         }
       );
+
       if (response.status === 201) {
         const data = await response.json();
         console.log(data.data);
-        return data.data;
+
+        // insert payment in transaction table
+        const { data: transactionData, error: transactionError } =
+          await supabase
+            .from(DbTable.transactions)
+            .insert({
+              id: data.data.id,
+              amount: data.data.amount,
+              status: PaymentStatusType.pending,
+              metadata: data.data.metadata,
+              source: data.data.source,
+              user_id,
+              updateDate: data.data.updateDate,
+              // refunds: data.data.refunds,
+              type: TransactionType.link,
+              payment_slug:slug
+            })
+            .select().single()
+
+        if (transactionData) {
+          console.log(transactionData);
+          return transactionData;
+        }
+
+        if (transactionError) {
+          return { error: 'something went wrong' };
+        }
       } else {
         console.log(response);
         return { error: 'something went wrong' };
@@ -303,6 +347,7 @@ const useCircle = () => {
     getWalletBalance,
     getPaymentLink,
     encryptCardDetails,
+    createCard,
     createCardPayment
   };
 };

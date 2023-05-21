@@ -27,7 +27,11 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
   };
 
   const submitForm = async (values: CardInformation) => {
-    const result = await createCardPayment(values);
+    const result = await createCardPayment(
+      values,
+      paymentDetails.user_id,
+      paymentDetails.slug
+    );
 
     if (result?.error) {
       console.log(result.error);
@@ -58,24 +62,21 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
           number: exampleCards[0].formData.cardNumber,
           cvv: exampleCards[0].formData.cvv,
           email: paymentDetails.metadata.user_email,
-          phoneNumber: exampleCards[0].formData.phoneNumber,
-
+          phoneNumber: exampleCards[0].formData.phoneNumber
         }}
         onSubmit={(values: CardInformation, { setSubmitting }) => {
           submitForm(values).then((_) => setSubmitting(false));
         }}
         validationSchema={Yup.object().shape({
-            name: Yup.string().required('Please enter your name'),
-            line1: Yup.string().required('Please enter an line1'),
-            country: Yup.string().required('Please enter an country'),
-            city: Yup.string().required('Please enter an city'),
-            postalCode: Yup.string().required('Please enter a valid postalCode'),
+          name: Yup.string().required('Please enter your name'),
+          line1: Yup.string().required('Please enter an line1'),
+          country: Yup.string().required('Please enter an country'),
+          city: Yup.string().required('Please enter an city'),
+          postalCode: Yup.string().required('Please enter a valid postalCode'),
           expMonth: Yup.string().required('Please enter an expMonth'),
           expYear: Yup.string().required('Please enter an expYear'),
           number: Yup.string().required('Please enter an number'),
-            amount:Yup.number().required('Please enter an amount'),
-
-
+          amount: Yup.number().required('Please enter an amount')
         })}
       >
         {(props: FormikProps<CardInformation>) => {
@@ -196,7 +197,6 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                   ]}
                   onChange={handleChange}
                   onBlur={handleBlur}
-
                 />
                 <div className="flex  justify-between items-end gap-2">
                   <Input
