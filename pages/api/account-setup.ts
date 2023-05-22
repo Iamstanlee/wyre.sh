@@ -18,30 +18,24 @@ export default async function handler(
       last_name: string;
     }>(req.body);
 
-  const promises = [
-    supabaseAdmin
+
+  try {
+    await supabaseAdmin
       .from(DbTable.users)
       .upsert(<User>{
         id: user_id,
         email_address, first_name, last_name
-      }),
-    supabaseAdmin
+      });
+
+    const {
+      data: walletData
+    } = await supabaseAdmin
       .from(DbTable.wallets)
       .upsert(<Wallet>{
         user_id,
-        balance: 0.0,
+        balance: 100.0,
         unresolved: 0.0
-      }).select('id').single(),
-
-  ];
-
-
-  try {
-    const [{ error: createWalletError, data: walletData }, { data: userData }] = await Promise.all(promises);
-    if (createWalletError) {
-      console.error(createWalletError, 'Failed to create wallet.');
-      return res.status(500).json({ message: 'Failed to create wallet.' });
-    }
+      }).select('id').single();
 
     // TODo: generate random slug and check if it exists
     await supabaseAdmin
@@ -50,7 +44,8 @@ export default async function handler(
         user_id,
         slug: getRandomLink(),
         type: PaymentLinkType.link,
-        metadata:{
+        metadata: {
+          user_id,
           user_name: `${first_name} ${last_name}`,
           user_email: email_address
         }

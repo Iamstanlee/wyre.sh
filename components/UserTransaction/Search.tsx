@@ -7,7 +7,7 @@ function Search() {
       optional={true}
       id="search"
       type="text"
-      placeholder="Search payments by number, items, client name or email..."
+      placeholder="Search transaction by ID, amount or date."
       className="border-none border-b border-border-color"
     />
   );

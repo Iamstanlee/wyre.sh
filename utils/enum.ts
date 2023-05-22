@@ -5,7 +5,9 @@ export enum HttpMethod {
 export enum RouteKey {
   signin = 'sign-in',
   dashboard = 'dashboard',
-  setup = 'setup'
+  setup = 'setup',
+  transactions = 'transactions',
+  account = 'account',
 }
 
 export enum DbTable {
@@ -17,17 +19,20 @@ export enum DbTable {
 
 export enum PaymentLinkType {
   link = 'payment_link',
-  productPage = 'product_page'
+  productPage = 'product_page',
+  onRamp = 'on_ramp'
 }
 
 export enum PaymentStatusType {
   pending = 'pending',
+  confirmed = 'confirmed',
   success = 'success',
   failed = 'failed',
   cancelled = 'cancelled'
 }
 
-export enum TransactionType {
-  link = 'payment_link',
-  productPage = 'product_page'
+export enum PaymentType {
+  payment = 'payment',
+  refund = 'refund',
+  cancel = 'cancel'
 }

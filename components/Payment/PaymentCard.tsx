@@ -1,47 +1,44 @@
 import * as Yup from 'yup';
 import { Form, Formik, FormikProps } from 'formik';
-
-import styles from './Payment.module.css';
-import Button from '../ui/Button/Button';
-import Input from '../ui/Input/Input';
-import Select from '../ui/Select/Select';
-import { PaymentLink, CardInformation } from '@/types';
+import { CardInformation, PaymentLink } from '@/types';
 import { exampleCards } from '@/data/mock';
 import useCircle from '@/utils/use-circle';
-import PaymentCreated from '../ui/Modal/PaymentCreated';
 import { useState } from 'react';
+import Input from '@/components/ui/Input';
+import Select from '@/components/ui/Select';
+import Button from '@/components/ui/Button';
+import PaymentCreatedModal from '@/components/ui/Modal/PaymentCreatedModal';
+import SvgIcon from '@/components/SvgIcon';
+import { useToast } from '@/utils/use-toast';
 
-interface CardDetailsProps {
-  paymentDetails: PaymentLink | null | any;
+interface Props {
+  paymentLink: PaymentLink;
 }
 
-const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
+const PaymentCardComponent = ({ paymentLink }: Props) => {
   const { createCardPayment } = useCircle();
+  const { show } = useToast();
 
-  const [openPaymentCreatedModall, setOpenPaymentCreatedModal] =
-    useState<boolean>(false);
-  const [paymentStatus, setPaymentStatus] = useState<string>('');
+  const [openPaymentCreatedModal, setOpenPaymentCreatedModal] = useState<boolean>(false);
 
   const handleClosePaymentCreatedModal = () => {
     setOpenPaymentCreatedModal(false);
   };
 
   const submitForm = async (values: CardInformation) => {
-    const result = await createCardPayment(
-      values,
-      paymentDetails.user_id,
-      paymentDetails.slug
-    );
-
-    if (result?.error) {
-      console.log(result.error);
-    } else {
-      console.log(result);
-      setPaymentStatus(result?.status);
+    try {
+      await createCardPayment(
+        values,
+        paymentLink.metadata.user_id,
+        paymentLink.slug
+      );
       setOpenPaymentCreatedModal(true);
-
-      // user should be able to see payment status in real time
-      // there should also be a button to refresh payment status
+    } catch (e: unknown) {
+      if (e instanceof Error) {
+        show(e.message, 'danger');
+      } else {
+        show('An unexpected error occured', 'danger');
+      }
     }
   };
 
@@ -50,9 +47,9 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
       <Formik
         initialValues={{
           amount: '',
+          email: exampleCards[0].formData.email,
           name: exampleCards[0].formData.name,
           line1: exampleCards[0].formData.line1,
-          line2: '',
           district: exampleCards[0].formData.district,
           country: exampleCards[0].formData.country,
           city: exampleCards[0].formData.city,
@@ -61,7 +58,6 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
           expYear: exampleCards[0].formData.expiry.year,
           number: exampleCards[0].formData.cardNumber,
           cvv: exampleCards[0].formData.cvv,
-          email: paymentDetails.metadata.user_email,
           phoneNumber: exampleCards[0].formData.phoneNumber
         }}
         onSubmit={(values: CardInformation, { setSubmitting }) => {
@@ -69,6 +65,7 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().required('Please enter your name'),
+          email: Yup.string().required('Please enter your email address'),
           line1: Yup.string().required('Please enter an line1'),
           country: Yup.string().required('Please enter an country'),
           city: Yup.string().required('Please enter an city'),
@@ -78,118 +75,133 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
           number: Yup.string().required('Please enter an number'),
           amount: Yup.number().required('Please enter an amount')
         })}
+        validateOnChange={false}
       >
         {(props: FormikProps<CardInformation>) => {
           const {
             values,
-            touched,
             errors,
             handleBlur,
             handleChange,
             isSubmitting
           } = props;
           return (
-            <Form className="w-full md:w-1/2 px-6 md:px-12 lg:px-28 py-10 md:pt-20">
-              <p className="text-grey text-sm sm:text-base pb-6">
-                Enter your payment information to complete the payment of this
-                invoice.
+            <Form className='w-full md:w-1/2 px-6 md:px-12 lg:px-28 py-10 md:pt-20'>
+              <p className='text-grey text-sm sm:text-base pb-6'>
+                Enter your card information to complete the payment
               </p>
-
-              {/* <p className="error text-danger mb-4">{ authErr }</p> */}
-
-              <div className="flex flex-col gap-6">
+              <div className='flex flex-col gap-6'>
                 <Input
-                  value={values.amount}
-                  id="amount"
-                  name="amount"
-                  title="Amount"
-                  placeholder="$0.00"
-                  type="text"
+                  value={values.email}
+                  id='email'
+                  name='email'
+                  title='Email Address'
+                  placeholder='example@domain.com'
                   optional={false}
-                  className="w-1/3"
+                  type='email'
+                  className='w-1/3'
                   onChange={handleChange}
                   onBlur={handleBlur}
-                  // disabled={values.amount?.amount ? true : false}
+                  error={errors.email}
+                />
+                <Input
+                  value={values.amount}
+                  id='amount'
+                  name='amount'
+                  title='Amount'
+                  placeholder='$0.00'
+                  type='text'
+                  optional={false}
+                  className='w-1/3'
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={errors.amount}
                 />
                 <Input
                   value={values.number}
-                  name="Card Number"
-                  title="Card Number"
-                  id="card_number"
-                  placeholder="1234 5678 7654 3210"
-                  type="text"
+                  id='cardNumber'
+                  name='number'
+                  title='Card Number'
+                  placeholder='1234 5678 7654 3210'
+                  type='text'
                   optional={false}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={errors.number}
                 />
-                <div className="flex justify-between items-end gap-2">
+                <div className='flex justify-between items-end gap-2'>
                   <Input
                     value={values.expMonth}
-                    id="expMonth"
-                    name="expMonth"
-                    title="Exp Month"
-                    placeholder="MM"
-                    type="text"
+                    id='expMonth'
+                    name='expMonth'
+                    title='Exp Month'
+                    placeholder='MM'
+                    type='text'
                     optional={false}
-                    className="w-1/3"
+                    className='w-full'
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    error={errors.expMonth}
                   />
                   <Input
                     value={values.expYear}
-                    id="expYear"
-                    name="expYear"
-                    title="Exp Year"
-                    placeholder="YY"
-                    type="text"
+                    id='expYear'
+                    name='expYear'
+                    title='Exp Year'
+                    placeholder='YY'
+                    type='text'
                     optional={false}
-                    className="w-1/3"
+                    className='w-full'
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    error={errors.expYear}
                   />
                 </div>
 
                 <Input
                   value={values.cvv}
-                  id="cvv"
-                  name="cvv"
-                  title="cvv"
-                  placeholder="cvv"
+                  id='cvv'
+                  name='cvv'
+                  title='cvv'
+                  placeholder='cvv'
                   optional={false}
-                  type="text"
-                  className="w-1/3"
+                  type='text'
+                  className='w-1/3'
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={errors.cvv}
                 />
 
                 <Input
                   value={values.name}
-                  id="name"
-                  name="Name"
-                  title="Name on Card"
-                  placeholder="Jonathan Doe"
+                  id='name'
+                  name='name'
+                  title='Name on Card'
+                  placeholder='Jonathan Doe'
                   optional={false}
-                  type="text"
+                  type='text'
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={errors.name}
                 />
                 <Input
                   value={values.line1}
-                  id="line1"
-                  name="line1"
-                  title="Address Line"
-                  placeholder="Block 12, Angel Avenue"
+                  id='line1'
+                  name='line1'
+                  title='Address Line'
+                  placeholder='Block 12, Angel Avenue'
                   optional={false}
-                  type="text"
+                  type='text'
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={errors.line1}
                 />
                 <Select
                   value={values.country}
-                  id="country"
-                  name="country"
-                  title="Country"
-                  placeholder="Select your country"
+                  id='country'
+                  name='country'
+                  title='Country'
+                  placeholder='Select your country'
                   optional={false}
                   options={[
                     { item: 'NGN', value: 'Nigeria' },
@@ -197,50 +209,56 @@ const CardDetails = ({ paymentDetails }: CardDetailsProps) => {
                   ]}
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  error={errors.country}
                 />
-                <div className="flex  justify-between items-end gap-2">
+                <div className='flex justify-between items-center gap-2'>
                   <Input
                     value={values.city}
-                    id="city"
-                    name="city"
-                    title="City"
-                    placeholder="Texas"
+                    id='city'
+                    name='city'
+                    title='City'
+                    placeholder='Texas'
                     optional={false}
-                    type="text"
+                    type='text'
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    error={errors.city}
                   />
                   <Input
                     value={values.postalCode}
-                    id="postalCode"
-                    name="postalCode"
-                    title="Postal Code"
-                    placeholder="123456"
+                    id='postalCode'
+                    name='postalCode'
+                    title='Postal Code'
+                    placeholder='123456'
                     optional={false}
-                    type="text"
+                    type='text'
                     onChange={handleChange}
                     onBlur={handleBlur}
+                    error={errors.postalCode}
                   />
                 </div>
                 <Button
                   loading={isSubmitting}
-                  variant="slim"
-                  type="submit"
-                  className="w-full"
+                  variant='slim'
+                  type='submit'
+                  className='w-full'
                 >
                   Pay
                 </Button>
+              </div>
+              <div className='flex mt-5 gap-2 items-center justify-center'>
+                <span>Powered by</span>
+                <SvgIcon name='circle' size={100} />
               </div>
             </Form>
           );
         }}
       </Formik>
-      <PaymentCreated
-        open={openPaymentCreatedModall}
-        handleClosePaymentCreatedModal={handleClosePaymentCreatedModal}
-        status={paymentStatus}
+      <PaymentCreatedModal
+        isOpen={openPaymentCreatedModal}
+        close={handleClosePaymentCreatedModal}
       />
     </>
   );
 };
-export default CardDetails;
+export default PaymentCardComponent;

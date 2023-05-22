@@ -1,16 +1,12 @@
 import TransactionList from './TransactionList';
-import TransactionOverview from './TransactionOverview';
 import Search from './Search';
 
 function UserTransaction() {
   return (
-    <>
-      <TransactionOverview />
-      <div className="mt-8">
-        <Search />
-        <TransactionList />
-      </div>
-    </>
+    <div className='mt-4'>
+      <Search />
+      <TransactionList />
+    </div>
   );
 }
 

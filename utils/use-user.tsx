@@ -3,6 +3,7 @@ import { PaymentLink, Transaction, User, Wallet } from 'types';
 import { useSupabase } from '@/utils/use-supabase';
 import { DbTable, PaymentLinkType, RouteKey } from '@/utils/enum';
 import { useRouter } from 'next/router';
+import { useCurrencyFormatter } from '@/utils/use-intl';
 
 interface UserBootstrapData extends User {
   user: User;
@@ -19,6 +20,8 @@ type UserContextType = {
   mainPaymentLink?: PaymentLink;
   transactions: Transaction[];
   isLoading: boolean;
+  strWalletBalance: string;
+  getUser: () => void;
 };
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -33,6 +36,7 @@ export default function UserContextProvider(props: Props) {
   const { supabase, supabaseUser } = useSupabase();
   const [isLoading, setIsloading] = useState(true);
   const [bootstrapData, setBootstrapData] = useState<UserBootstrapData>();
+  const usdFormatter = useCurrencyFormatter();
 
 
   useEffect(() => {
@@ -45,7 +49,9 @@ export default function UserContextProvider(props: Props) {
   const wallet = useMemo(() => bootstrapData?.wallet, [bootstrapData]);
   const paymentLinks = useMemo(() => bootstrapData?.payment_links, [bootstrapData]);
   const mainPaymentLink = paymentLinks?.find((link) => link.type == PaymentLinkType.link);
-  const transactions = useMemo(() => bootstrapData?.transactions ?? [], [bootstrapData]);
+  const transactions = useMemo(() => bootstrapData?.transactions.sort((a, b) => new Date(b.created_at).getMilliseconds() - new Date(a.created_at).getMilliseconds()) ?? [], [bootstrapData]);
+
+  const strWalletBalance = useMemo(() => usdFormatter.format(wallet?.balance ?? 0), [wallet]);
 
 
   const gotoSetup = () => {
@@ -56,6 +62,7 @@ export default function UserContextProvider(props: Props) {
     setIsloading(true);
     const { data, error } = await supabase
       .from(DbTable.users)
+      // Decouple transactions query
       .select('*, payment_links(*), wallet:wallets(*), transactions(*)')
       .match({ id: supabaseUser?.id })
       .single();
@@ -80,7 +87,9 @@ export default function UserContextProvider(props: Props) {
     wallet,
     paymentLinks,
     mainPaymentLink,
-    transactions
+    transactions,
+    strWalletBalance,
+    getUser,
   }} {...props} />;
 }
 

@@ -14,19 +14,18 @@ interface Props {
   onChange?: (e: ChangeEvent<HTMLSelectElement>) => void;
   onBlur?: (e: ChangeEvent<HTMLSelectElement>) => void;
   value?: string;
-  error?: boolean;
+  error?: string;
   name: SelectHTMLAttributes<HTMLSelectElement>['name'];
   id: SelectHTMLAttributes<HTMLSelectElement>['id'];
   placeholder?: SelectHTMLAttributes<HTMLSelectElement>['placeholder'];
-  errors?: string;
   optional: boolean;
   options: Array<OptionProps>;
 }
 
 const Select = (props: Props) => {
-  const { className, title, errors, optional, options, placeholder, ...rest } =
+  const { className, title, error, optional, options, placeholder, ...rest } =
     props;
-  const rootClassName = cn(style.root, {}, className, errors && style.danger);
+  const rootClassName = cn(style.root, {}, className, error && style.danger);
 
   return (
     <div>
@@ -56,7 +55,7 @@ const Select = (props: Props) => {
           </option>
         ))}
       </select>
-      {errors && <p className="text-xs text-danger">{errors}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
     </div>
   );
 };

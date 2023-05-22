@@ -24,7 +24,7 @@ const Input = (props: Props) => {
   const rootClassName = cn(style.root, {}, className, error && style.danger);
 
   return (
-    <div>
+    <div className='w-full'>
       {title && (
         <label className="text-primary-text text-sm mb-1 block">
           {title}
@@ -40,7 +40,7 @@ const Input = (props: Props) => {
         {...rest}
       />
       {error && <p className="text-xs text-danger">{error}</p>}
-      {note && <p className="text-xs text-info">{note}</p>}
+      {note && <p className="text-xs text-info pt-2">{note}</p>}
     </div>
   );
 };

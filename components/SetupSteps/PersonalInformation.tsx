@@ -17,7 +17,7 @@ const PersonalInformation = () => {
   const { show } = useToast();
   const { replace } = useRouter();
   const { supabaseUser } = useSupabase();
-  const { user } = useUser();
+  const { user, getUser } = useUser();
 
   const submitForm = async (values: ISubmit) => {
     let response = await fetch('/api/account-setup', {
@@ -35,6 +35,7 @@ const PersonalInformation = () => {
     });
     const data = await response.json();
     if (response.ok) {
+      getUser();
       show(data.message, 'success');
       await replace(RouteKey.dashboard);
     } else {
@@ -57,7 +58,6 @@ const PersonalInformation = () => {
           last_name: Yup.string().required('Please enter your last name')
         })}
         validateOnChange={false}
-        validateOnBlur={false}
       >
         {(props: FormikProps<ISubmit>) => {
           const {
