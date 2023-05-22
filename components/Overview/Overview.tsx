@@ -19,48 +19,48 @@ const Overview = () => {
     setOpenWithdrawUSDCModal(false);
   };
 
-
-  const strPaymentLink = useMemo(() => `${process.env.NODE_ENV == 'production' ? 'https://wyre-sh.vercel.app' : 'http://localhost:3000'}/pay/${mainPaymentLink?.slug}`, [mainPaymentLink]);
+  const strPaymentLink = useMemo(
+    () =>
+      `${
+        process.env.NODE_ENV == 'production'
+          ? 'https://wyre-sh.vercel.app'
+          : 'http://localhost:3000'
+      }/pay/${mainPaymentLink?.slug}`,
+    [mainPaymentLink]
+  );
 
   return (
-    <div className='flex flex-col gap-8'>
-      <div className='flex justify-between'>
-        <div className='flex items-start gap-2 pt-4 flex-col'>
-          <div className='flex items-center gap-2'>
-            <span className='text-sm text-gray-400'>Balance</span>
-            <span className='text-lg'>{strWalletBalance}</span>
+    <div className="flex flex-col gap-8">
+      <div className="flex flex-col sm:flex-row justify-between gap-4">
+        <div className="flex items-start gap-2 pt-4 flex-col">
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-400">Balance</span>
+            <span className="text-lg">{strWalletBalance}</span>
           </div>
-          <div className='flex items-center gap-2'>
-            <span className='text-sm text-gray-400'>Payment link</span>
-            <span className='text-md'>{strPaymentLink}</span>
-            <SvgIcon name='copy'
-                     onClick={async () => {
-                       await copyToClipboard(strPaymentLink);
-                       show('Payment link copied to clipboard');
-                     }} />
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-gray-400">Payment link</span>
+            <span className="text-md">{strPaymentLink}</span>
+            <SvgIcon
+              name="copy"
+              onClick={async () => {
+                await copyToClipboard(strPaymentLink);
+                show('Payment link copied to clipboard');
+              }}
+            />
           </div>
         </div>
-        <div
-          className={`${styles.button_wrapper} ${styles.button_wrapper_desktop}`}
-        >
+        <div className={styles.button_wrapper}>
           <Button
             className={styles.button}
             onClick={() => setOpenWithdrawUSDCModal(true)}
           >
-            <span className='mr-1'>Withdraw USDC</span>
-            <ArrowBendUpRight size={16} weight='bold' />
+            <span className="mr-1">Withdraw USDC</span>
+            <ArrowBendUpRight size={16} weight="bold" />
           </Button>
         </div>
       </div>
-      <div
-        className={styles.button_wrapper}
-      >
-        <Button className={styles.button + ' ' + styles.button_withdraw}>
-          <span className='mr-1'>Withdraw USDC</span>
-          <ArrowBendUpRight size={16} weight='bold' />
-        </Button>
-      </div>
-      <h2 className='sm:text-xl'>Recent activity</h2>
+
+      <h2 className="sm:text-xl">Recent activity</h2>
       <TransactionList />
       <WithdrawUSDCModal
         isOpen={openWithdrawUSDCModal}
