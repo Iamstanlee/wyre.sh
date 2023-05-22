@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes, ChangeEvent } from 'react';
+import React, { ChangeEvent, InputHTMLAttributes } from 'react';
 import cn from 'classnames';
 
 import style from './Input.module.css';
@@ -9,21 +9,22 @@ interface Props {
   onChange?: (e: ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: ChangeEvent<HTMLInputElement>) => void;
   value?: string;
-  error?: boolean;
+  error?: string;
   type: InputHTMLAttributes<HTMLInputElement>['type'];
   name: InputHTMLAttributes<HTMLInputElement>['name'];
   id: InputHTMLAttributes<HTMLInputElement>['id'];
   placeholder: InputHTMLAttributes<HTMLInputElement>['placeholder'];
-  errors?: string;
   optional: boolean;
   disabled?: boolean;
+  note?: string;
 }
+
 const Input = (props: Props) => {
-  const { className, title, errors, optional, ...rest } = props;
-  const rootClassName = cn(style.root, {}, className, errors && style.danger);
+  const { className, title, error, optional, note, ...rest } = props;
+  const rootClassName = cn(style.root, {}, className, error && style.danger);
 
   return (
-    <div>
+    <div className='w-full'>
       {title && (
         <label className="text-primary-text text-sm mb-1 block">
           {title}
@@ -38,7 +39,8 @@ const Input = (props: Props) => {
         spellCheck="false"
         {...rest}
       />
-      {errors && <p className="text-xs text-danger">{errors}</p>}
+      {error && <p className="text-xs text-danger">{error}</p>}
+      {note && <p className="text-xs text-info pt-2">{note}</p>}
     </div>
   );
 };

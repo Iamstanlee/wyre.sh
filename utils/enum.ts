@@ -5,25 +5,34 @@ export enum HttpMethod {
 export enum RouteKey {
   signin = 'sign-in',
   dashboard = 'dashboard',
-  setup = 'setup'
+  setup = 'setup',
+  transactions = 'transactions',
+  account = 'account',
 }
 
 export enum DbTable {
   users = 'users',
-  payment_link = 'payment_link',
+  payment_links = 'payment_links',
   wallets = 'wallets',
   transactions = 'transactions'
 }
 
 export enum PaymentLinkType {
-  temp = 'TEMP_LINK',
-  parmanent = 'PERMA_LINK'
+  link = 'payment_link',
+  productPage = 'product_page',
+  onRamp = 'on_ramp'
 }
 
 export enum PaymentStatusType {
-  created = 'CREATED',
-  pending = 'PENDING',
-  success = 'SUCCESS',
-  failed = 'FAILED',
-  cancelled = 'CANCELLED'
+  pending = 'pending',
+  confirmed = 'confirmed',
+  success = 'success',
+  failed = 'failed',
+  cancelled = 'cancelled'
+}
+
+export enum PaymentType {
+  payment = 'payment',
+  refund = 'refund',
+  cancel = 'cancel'
 }

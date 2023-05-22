@@ -1,30 +1,32 @@
 import { DbTable, PaymentLinkType, PaymentStatusType } from './enum';
 import { useSupabase } from './use-supabase';
-import { useUser } from './use-user';
-import {
-  Circle,
-  CircleEnvironments,
-  PaymentCreationRequestVerificationEnum,
-  TransferRequestBlockchainLocationTypeEnum,
-  TransferRequestSourceWalletLocationTypeEnum
-} from '@circle-fin/circle-sdk';
+import { MoneyCurrencyEnum } from '@circle-fin/circle-sdk';
 import { v4 as uuidv4 } from 'uuid';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createMessage, encrypt as pgpEncrypt, readKey } from 'openpgp';
-
-import { getRandomLink } from './random';
 import {
+  CardInformation,
   CardInformationToEncrypt,
   EncryptionKey,
-  CardInformation
+  Payment,
+  PaymentLink,
+  Transaction,
+  Transfer,
+  Wallet
 } from '@/types';
+import { isSuccessResponse } from '@/utils/helper';
 
 const useCircle = () => {
-  ///   Circle initialization
-  const circle = new Circle(
-    process.env.NEXT_PUBLIC_CIRCLE_API_KEY ?? '',
-    CircleEnvironments.sandbox // API base url
-  );
+  const { supabase } = useSupabase();
+  const [ipAddress, setIpAddress] = useState<string>('');
+  const [masterWalletId, setMasterWalletId] = useState<string>('');
+  // const [circle] = useState<Circle>(new Circle(`${process.env.NEXT_PUBLIC_CIRCLE_API_KEY}`, CircleEnvironments.sandbox));
+
+  useEffect(() => {
+    fetchIpAddress();
+    getMasterWalletId();
+  }, []);
+
 
   ///   HTTP Get Options
   const httpGetOptions = {
@@ -45,14 +47,6 @@ const useCircle = () => {
     }
   };
 
-  ///   Fetch and Update IP Address
-  const [ipAddress, setIpAddress] = useState(null);
-  useEffect(() => {
-    fetchIpAddress();
-  }, []);
-
-  const { supabase, supabaseUser } = useSupabase();
-  const { user } = useUser();
 
   /// Get User IP address
   const fetchIpAddress = async () => {
@@ -65,115 +59,94 @@ const useCircle = () => {
     }
   };
 
-  ///   Fetch Payment Link Address
-  async function getPaymentLink(link: string | string[]) {
+  async function getMasterWalletId() {
+    fetch('https://api-sandbox.circle.com/v1/configuration', httpGetOptions)
+      .then((response) => response.json())
+      .then((response) => {
+        setMasterWalletId(response.data.payments.masterWalletId);
+      })
+      .catch((err) => console.error(err));
+  }
+
+  async function getPaymentLink(link: string): Promise<PaymentLink> {
     let { data, error } = await supabase
-      .from(DbTable.payment_link)
+      .from(DbTable.payment_links)
       .select('*')
-      .match({ link: link })
+      .match({ slug: link })
       .single();
-
-    return { data, error };
-  }
-
-  ///   Create Temporary Payment Link
-  async function createPaymentLink(
-    receiver: string,
-    amount: string,
-    description: string
-  ) {
-    const paymentLink = getRandomLink();
-    const linkNotAvailable = await getPaymentLink(paymentLink);
-
-    if (linkNotAvailable.data) {
-      createPaymentLink(receiver, amount, description);
-    } else {
-      let { data, error } = await supabase
-        .from(DbTable.payment_link)
-        .insert({
-          id: uuidv4(),
-          link: paymentLink,
-          user_id: supabaseUser?.id,
-          type: PaymentLinkType.temp,
-          amount: amount,
-          status: PaymentStatusType.created,
-          metadata: {
-            receiver,
-            description,
-            user_name: `${user?.first_name} ${user?.last_name}`,
-            user_email: user?.email_address
-          }
-        })
-        .select('link')
-        .single();
-
-      if (error) {
-        //todo
-        return { error: error.message };
-      } else {
-        //todo
-        return { data: data };
-      }
+    if (error) {
+      throw Error(error.message);
     }
+    return data as PaymentLink;
   }
 
-  ///   Make Payment Using Circle API
-  async function makePaymentViaCard() {
-    const { data } = await circle.payments.createPayment({
-      idempotencyKey: uuidv4(),
-      keyId: uuidv4(),
-      metadata: {
-        email: '',
-        phoneNumber: '',
-        sessionId: '',
-        ipAddress: ''
-      },
-      amount: {
-        amount: 'string',
-        currency: 'USD'
-      },
-      autoCapture: true,
-      verification: PaymentCreationRequestVerificationEnum.Cvv,
-      verificationSuccessUrl: '',
-      verificationFailureUrl: '',
-      source: { id: '', type: 'card' },
-      description: '',
-      encryptedData: '',
-      channel: ''
-    });
-  }
+  ///   Create Payment Or onRamp Link
+  // async function createPaymentLink(
+  //   receiver: string,
+  //   amount: string,
+  //   description: string
+  // ) {
+  //   const paymentLink = getRandomLink();
+  //   const linkNotAvailable = await getPaymentLink(paymentLink);
+  //
+  //   if (linkNotAvailable.data) {
+  //     createPaymentLink(receiver, amount, description);
+  //   } else {
+  //     let { data, error } = await supabase
+  //       .from(DbTable.payment_link)
+  //       .insert({
+  //         id: uuidv4(),
+  //         link: paymentLink,
+  //         user_id: supabaseUser?.id,
+  //         type: PaymentLinkType.temp,
+  //         amount: amount,
+  //         status: PaymentStatusType.created,
+  //         metadata: {
+  //           receiver,
+  //           description,
+  //           user_name: `${user?.first_name} ${user?.last_name}`,
+  //           user_email: user?.email_address
+  //         }
+  //       })
+  //       .select('link')
+  //       .single();
+  //
+  //     if (error) {
+  //       //todo
+  //       return { error: error.message };
+  //     } else {
+  //       //todo
+  //       return { data: data };
+  //     }
+  //   }
+  // }
 
-  ///   Get xula wallet balance for user (Every user has one account)
-  async function getWalletBalance() {
-    let { data, error } = await supabase
-      .from(DbTable.wallets)
-      .select(`*`)
-      .eq('id', supabaseUser?.id)
-      .single();
-  }
 
-  ///   Transfer from a circle wallet to a crypto account
-  async function createCryptoPayment() {
-    const { data } = await circle.transfers.createTransfer({
-      idempotencyKey: uuidv4(),
-      source: {
-        type: TransferRequestSourceWalletLocationTypeEnum.Wallet,
-        ///walllet id to transfar from
-        id: '',
-        ///Nor sure say I know wetien this one be oo
-        identities: []
-      },
+  async function createCryptoPayment(values: Transfer) {
+    const body = {
       destination: {
-        type: TransferRequestBlockchainLocationTypeEnum.Blockchain,
-        address: '',
-        addressTag: '',
-        chain: 'ALGO'
+        type: 'verified_blockchain',
+        addressId: values.destination.address,
+        chain: values.destination.chain
+      },
+      source: {
+        type: 'wallet',
+        id: masterWalletId
       },
       amount: {
-        amount: '',
-        currency: 'BTC'
-      }
-    });
+        amount: parseFloat(values.amount.amount).toFixed(2),
+        currency: values.amount.currency
+      },
+      idempotencyKey: uuidv4()
+    };
+
+    fetch('https://api-sandbox.circle.com/v1/businessAccount/transfers', {
+      ...httpPostOptions,
+      body: JSON.stringify(body)
+    })
+      .then((response) => response.json())
+      .then((response) => console.log(response))
+      .catch((err) => console.error(err));
   }
 
   ///   Get public key for encryption
@@ -191,10 +164,9 @@ const useCircle = () => {
     }
   }
 
-  ///   Encrypt card details
-  async function encryptCardDetails(cardInfo: CardInformationToEncrypt) {
+  async function encryptCardInformation(cardInfo: CardInformationToEncrypt) {
     const key = await getEncryptKey();
-    if (!key) return;
+    if (!key) throw Error('An unexpected error occured');
     const decodedPublicKey = await readKey({
       armoredKey: atob(key?.publicKey)
     });
@@ -207,8 +179,6 @@ const useCircle = () => {
       encryptionKeys: decodedPublicKey
     })
       .then((ciphertext) => {
-        console.log('ciphertext', btoa(ciphertext as string));
-
         return {
           encryptedMessage: btoa(ciphertext as string),
           key: key.keyId
@@ -217,9 +187,8 @@ const useCircle = () => {
       .catch((error) => console.error('Error encrypting message:', error));
   }
 
-  ///   Create card - save card details
   async function createCard(cardInfo: CardInformation) {
-    const encryptedData = await encryptCardDetails({
+    const encryptedData = await encryptCardInformation({
       number: cardInfo.number,
       cvv: cardInfo.cvv
     });
@@ -231,67 +200,140 @@ const useCircle = () => {
           idempotencyKey: uuidv4(),
           keyId: encryptedData?.key,
           encryptedData: encryptedData?.encryptedMessage as string,
-          billingDetails: cardInfo.billingDetails,
+          billingDetails: {
+            name: cardInfo.name,
+            line1: cardInfo.line1,
+            line2: '',
+            district: cardInfo.district,
+            country: cardInfo.country,
+            city: cardInfo.city,
+            postalCode: cardInfo.postalCode
+          },
           expMonth: parseInt(cardInfo.expMonth),
           expYear: parseInt(cardInfo.expYear),
-          metadata: cardInfo.metadata
+          metadata: {
+            email: cardInfo.email,
+            phoneNumber: cardInfo.phoneNumber,
+            sessionId: 'xxx',
+            ipAddress: ipAddress
+          }
         })
       });
 
       const data = await response.json();
-
-      console.log(data.data);
-
       return { id: data.data?.id as string, encryptedData };
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) throw  Error(error.message);
+      throw Error('An unexpected error occured');
     }
   }
 
-  ///   Card payment - card to USDC using payment link
-  async function createCardPayment(cardInfo: CardInformation) {
-    console.log(cardInfo);
-
+  async function createCardPayment(
+    cardInfo: CardInformation,
+    user_id: string,
+    slug: string
+  ) {
     const cardData = await createCard(cardInfo);
 
-    try {
-      const response = await fetch(
-        'https://api-sandbox.circle.com/v1/payments',
-        {
-          ...httpPostOptions,
-          body: JSON.stringify({
-            idempotencyKey: uuidv4(),
-            keyId: cardData?.encryptedData?.key,
-            metadata: cardInfo.metadata,
-            amount: { amount: cardInfo.amount.amount, currency: 'USD' },
-            verification: 'none',
-            source: {
-              id: cardData?.id,
-              type: 'card'
-            }
-          })
-        }
-      );
-      if (response.status === 201) {
-        const data = await response.json();
-        console.log(data.data);
-        return data.data;
-      } else {
-        console.log(response);
-        return { error: 'something went wrong' };
+    const response = await fetch(
+      'https://api-sandbox.circle.com/v1/payments',
+      {
+        ...httpPostOptions,
+        body: JSON.stringify({
+          // TODO - add idempotency key, session id and ip address
+          idempotencyKey: uuidv4(),
+          keyId: cardData?.encryptedData?.key,
+          metadata: {
+            email: cardInfo.email,
+            phoneNumber: cardInfo.phoneNumber,
+            paymentLinkId: slug,
+            userId: user_id,
+            sessionId: 'xxx',
+            ipAddress: '172.33.222.1'
+          },
+          amount: {
+            amount: parseFloat(cardInfo.amount),
+            currency: MoneyCurrencyEnum.Usd
+          },
+          verification: 'none',
+          source: {
+            id: cardData?.id,
+            type: 'card'
+          }
+        })
       }
-    } catch (error) {
-      console.log(error);
+    );
+
+    const json = await response.json();
+
+    // TODO - move this to backend side
+    if (isSuccessResponse(response.status)) {
+      const initialPayment = json.data as Payment;
+      await supabase
+        .from(DbTable.transactions)
+        .insert({
+          user_id,
+          payment_slug: slug,
+          id: initialPayment?.id,
+          amount: initialPayment?.amount,
+          status: initialPayment?.status,
+          metadata: {
+            ...initialPayment?.metadata,
+            userId: user_id
+          },
+          type: PaymentLinkType.link,
+          created_at: initialPayment?.createDate,
+          updated_at: initialPayment?.updateDate
+        } as Transaction);
+
+      // TODO - move this to backend side and use subscription when implemented
+      const payment = await longPullPaymentForConfirmation(initialPayment);
+
+      if (payment.status == PaymentStatusType.confirmed) {
+        const thisInstant = new Date().toISOString();
+        // TODO - move this to backend side
+        const { data: wallet } = await supabase
+          .from(DbTable.wallets)
+          .select()
+          .match({ user_id })
+          .single();
+
+        await supabase
+          .from(DbTable.wallets)
+          .update({
+            balance: (wallet as Wallet).balance + parseFloat(payment.amount.amount),
+            updated_at: thisInstant
+          } as Wallet)
+          .match({ user_id });
+
+
+        await supabase
+          .from(DbTable.transactions)
+          .update({
+            status: PaymentStatusType.success,
+            updated_at: thisInstant
+          } as Transaction)
+          .match({ id: payment.id });
+      } else {
+        throw Error('Unable to confirm payment');
+      }
+    } else {
+      throw Error(json.message ?? response.statusText);
     }
+  }
+
+  async function longPullPaymentForConfirmation(payment: Payment): Promise<Payment> {
+    if (payment.status == PaymentStatusType.confirmed) return payment;
+    const response = await fetch(`https://api-sandbox.circle.com/v1/payments/${payment.id}`, httpGetOptions);
+    const json = await response.json();
+    return longPullPaymentForConfirmation(json.data as Payment);
   }
 
   return {
-    createPaymentLink,
-    makePaymentViaCard,
-    getWalletBalance,
     getPaymentLink,
-    encryptCardDetails,
-    createCardPayment
+    createCard,
+    createCardPayment,
+    createCryptoPayment
   };
 };
 

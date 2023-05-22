@@ -28,7 +28,7 @@ export default function SignIn() {
         <Auth
           supabaseClient={supabase}
           providers={[]}
-          // magicLink={true}
+          magicLink={true}
           appearance={{
             theme: ThemeSupa,
             variables: {

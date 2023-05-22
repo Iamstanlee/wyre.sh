@@ -1,0 +1,30 @@
+.toast {
+    @apply flex items-center  py-2 px-3 shadow-sm rounded mx-auto mb-2 fixed inset-x-0 z-50 w-fit;
+    @apply top-4;
+    animation: slideInFromTop 0.2s ease-in;
+}
+
+.success {
+    @apply bg-success;
+}
+
+.info {
+    @apply bg-info;
+}
+
+.warning {
+    @apply bg-orange-400;
+}
+
+.danger {
+    @apply bg-danger;
+}
+
+@keyframes slideInFromTop {
+    from {
+        top: -50px;
+    }
+    to {
+        @apply top-4;
+    }
+}
