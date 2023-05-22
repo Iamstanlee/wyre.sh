@@ -23,26 +23,26 @@ export default function Scaffold({ children, meta: pageMeta }: Props) {
       {/*Update values*/}
       <Head>
         <title>{meta.title}</title>
-        <meta name='robots' content='follow, index' />
-        <link href='/logo.png' rel='shortcut icon' />
-        <meta content={meta.description} name='description' />
+        <meta name="robots" content="follow, index" />
+        <link href="/logo.png" rel="shortcut icon" />
+        <meta content={meta.description} name="description" />
         <meta
-          property='og:url'
-          content={`https://app.muqee.ai${router.asPath}`}
+          property="og:url"
+          content={`https://wyre-sh.vercel.app/${router.asPath}`}
         />
-        <meta property='og:type' content='website' />
-        <meta property='og:site_name' content={meta.title} />
-        <meta property='og:description' content={meta.description} />
-        <meta property='og:title' content={meta.title} />
-        <meta property='og:image' content={meta.card_image} />
-        <meta name='twitter:card' content='summary_large_image' />
-        <meta name='twitter:site' content='@muqee_ai' />
-        <meta name='twitter:title' content={meta.title} />
-        <meta name='twitter:description' content={meta.description} />
-        <meta name='twitter:image' content={meta.card_image} />
+        <meta property="og:type" content="website" />
+        <meta property="og:site_name" content={meta.title} />
+        <meta property="og:description" content={meta.description} />
+        <meta property="og:title" content={meta.title} />
+        <meta property="og:image" content={meta.card_image} />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@wyre_sh" />
+        <meta name="twitter:title" content={meta.title} />
+        <meta name="twitter:description" content={meta.description} />
+        <meta name="twitter:image" content={meta.card_image} />
       </Head>
       <Toast />
-      <main id='skip'>{children}</main>
+      <main id="skip">{children}</main>
     </>
   );
 }
