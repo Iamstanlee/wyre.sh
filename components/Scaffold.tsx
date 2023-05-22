@@ -24,7 +24,7 @@ export default function Scaffold({ children, meta: pageMeta }: Props) {
       <Head>
         <title>{meta.title}</title>
         <meta name='robots' content='follow, index' />
-        <link href='/logo_black_bg.png' rel='shortcut icon' />
+        <link href='/logo.png' rel='shortcut icon' />
         <meta content={meta.description} name='description' />
         <meta
           property='og:url'

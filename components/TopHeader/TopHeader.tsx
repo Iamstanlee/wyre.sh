@@ -42,10 +42,10 @@ const TopHeader = () => {
       <div className='flex justify-between items-center '>
         <Link href='https://muqee.ai' className='block lg:hidden'>
           <Image
-            src='/assets/logo/logo_black.png'
-            width='50'
-            height='50'
-            alt='logo'
+            src="/assets/logo/logo.png"
+            width="50"
+            height="50"
+            alt="logo"
           />
         </Link>
         <h2 className='text-lg text-black font-normal block hidden lg:block'>
