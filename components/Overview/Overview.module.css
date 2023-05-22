@@ -8,16 +8,12 @@
 }
 
 .button_wrapper {
-  @apply flex justify-center items-center gap-4;
+  @apply flex items-center gap-4;
 }
 
-.button_wrapper_desktop {
-  @apply hidden sm:flex;
-}
 
-.button_wrapper_mobile {
-  @apply flex sm:hidden;
-}
+
+
 
 .button {
   padding: 5px 10px !important;

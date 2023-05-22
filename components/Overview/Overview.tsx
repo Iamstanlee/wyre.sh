@@ -53,7 +53,7 @@ const Overview = () => {
         </div>
       </div>
       <div
-        className={`${styles.button_wrapper} ${styles.button_wrapper_mobile}`}
+        className={styles.button_wrapper}
       >
         <Button className={styles.button + ' ' + styles.button_withdraw}>
           <span className='mr-1'>Withdraw USDC</span>
