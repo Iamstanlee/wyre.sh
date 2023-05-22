@@ -20,7 +20,7 @@ const Overview = () => {
   };
 
 
-  const strPaymentLink = useMemo(() => `${process.env.NODE_ENV == 'production' ? 'https://wyre.sh' : 'http://localhost:3000'}/pay/${mainPaymentLink?.slug}`, [mainPaymentLink]);
+  const strPaymentLink = useMemo(() => `${process.env.NODE_ENV == 'production' ? 'https://wyre-sh.vercel.app' : 'http://localhost:3000'}/pay/${mainPaymentLink?.slug}`, [mainPaymentLink]);
 
   return (
     <div className='flex flex-col gap-8'>

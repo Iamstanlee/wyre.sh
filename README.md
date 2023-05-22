@@ -11,6 +11,6 @@
 ## Introduction
 
 ```dart
-https://wyre.vercel.app/ -  Wyre dashboard
-http://wyre.vercel.app/pay/[id] - Wyre payment page
+https://wyre-sh.vercel.app/ -  Wyre dashboard
+http://wyre-sh.vercel.app/pay/[id] - Wyre payment page
 ```
