@@ -40,7 +40,7 @@ const TopHeader = () => {
     <div
       className='fixed z-10 top-0 right-0 w-full bg-white border-b border-l border-border-color py-3 px-4 md:px-8 xl:px-11 main-wrapper'>
       <div className='flex justify-between items-center '>
-        <Link href='https://muqee.ai' className='block lg:hidden'>
+        <Link href='/dashboard' className='block lg:hidden'>
           <Image
             src="/assets/logo/logo.png"
             width="50"
