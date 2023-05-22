@@ -49,7 +49,7 @@ export default function UserContextProvider(props: Props) {
   const wallet = useMemo(() => bootstrapData?.wallet, [bootstrapData]);
   const paymentLinks = useMemo(() => bootstrapData?.payment_links, [bootstrapData]);
   const mainPaymentLink = paymentLinks?.find((link) => link.type == PaymentLinkType.link);
-  const transactions = useMemo(() => bootstrapData?.transactions.sort((a, b) => new Date(b.created_at).getMilliseconds() - new Date(a.created_at).getMilliseconds()) ?? [], [bootstrapData]);
+  const transactions = useMemo(() => bootstrapData?.transactions.sort((a, b) => +new Date(b.created_at) - +new Date(a.created_at)) ?? [], [bootstrapData]);
 
   const strWalletBalance = useMemo(() => usdFormatter.format(wallet?.balance ?? 0), [wallet]);
 
@@ -89,7 +89,7 @@ export default function UserContextProvider(props: Props) {
     mainPaymentLink,
     transactions,
     strWalletBalance,
-    getUser,
+    getUser
   }} {...props} />;
 }
 
