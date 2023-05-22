@@ -78,7 +78,7 @@ const SideBar = () => {
           <li>
             <Link href="/dashboard" className="hidden lg:block mx-auto w-fit">
               <Image
-                src="/assets/logo/logo_black.png"
+                src="/assets/logo/logo.png"
                 width="60"
                 height="60"
                 alt="logo"
